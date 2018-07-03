@@ -3,8 +3,9 @@ package com.shiftpsh.sensortester
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.OnLifecycleEvent
+import android.databinding.BaseObservable
 
-abstract class BaseViewModel : LifecycleObserver {
+abstract class BaseViewModel : LifecycleObserver, BaseObservable() {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     abstract fun onCreate()

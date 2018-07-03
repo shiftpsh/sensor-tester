@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <import type="com.shiftpsh.sensortester.main.MainViewModel"/>
+        <import type="com.shiftpsh.sensortester.main.MainViewModel" />
+
         <variable
             name="vm"
             type="com.shiftpsh.sensortester.main.MainViewModel" />
@@ -23,37 +24,29 @@
                 android:id="@+id/ui_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:titleTextColor="@android:color/white">
+                app:titleTextColor="@android:color/white"
+                app:layout_scrollFlags="scroll|enterAlways">
 
             </android.support.v7.widget.Toolbar>
         </android.support.design.widget.AppBarLayout>
 
-        <android.support.constraint.ConstraintLayout
+        <android.support.v4.view.ViewPager
+            android:id="@+id/ui_fragment_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="hello world" />
-
-            <android.support.v4.view.ViewPager
-                android:id="@+id/ui_fragment_container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:currentItem="@{vm.currentPage}"
-                app:onPageChangeListener="@{vm.onPageChangeListener}" />
-
-        </android.support.constraint.ConstraintLayout>
+            android:layout_height="match_parent"
+            app:currentItem="@{vm.currentPage}"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:onPageChangeListener="@{vm.onPageChangeListener}" />
 
         <android.support.design.widget.BottomNavigationView
             android:id="@+id/ui_bottom_navigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            app:setSelectedItemId="@{vm.currentMenuItem}"
             app:menu="@menu/menu_bottom_navigation"
-            app:onNavigationItemSelectedListener="@{vm.onNavigationItemSelectedListener}" />
+            app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"
+            app:onNavigationItemSelectedListener="@{vm.onNavigationItemSelectedListener}"
+            app:setSelectedItemId="@{vm.currentMenuItem}" />
 
     </android.support.design.widget.CoordinatorLayout>
 </layout>

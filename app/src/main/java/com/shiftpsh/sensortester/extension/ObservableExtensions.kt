@@ -1,4 +1,4 @@
-package com.shiftpsh.sensortester.extensions
+package com.shiftpsh.sensortester.extension
 
 import android.databinding.Observable
 

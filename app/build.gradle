@@ -7,7 +7,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.shiftpsh.sensortester"
-        minSdkVersion 15
+        minSdkVersion 23
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -56,4 +56,5 @@ dependencies {
 
     // Etc
     implementation "com.jakewharton.timber:timber:4.7.1"
+    implementation "com.karumi:dexter:5.0.0"
 }
