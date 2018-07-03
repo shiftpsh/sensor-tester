@@ -6,7 +6,6 @@ import android.support.v4.view.ViewPager
 import com.shiftpsh.sensortester.BaseViewModel
 import com.shiftpsh.sensortester.R
 import com.shiftpsh.sensortester.extension.onPropertyChanged
-import timber.log.Timber
 
 class MainViewModel : BaseViewModel() {
 

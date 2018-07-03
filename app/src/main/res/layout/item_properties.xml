@@ -1,38 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:minHeight="48dp"
-    android:padding="8dp">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <ImageView
-        android:id="@+id/ui_icon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_margin="4dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        tools:src="@drawable/ic_rotate_90_degrees_ccw_black_24dp" />
+    <data>
 
-    <TextView
-        android:id="@+id/ui_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minHeight="32dp"
-        android:gravity="center_vertical"
-        android:layout_toRightOf="@+id/ui_icon"
-        android:layout_marginLeft="4dp"
-        tools:text="Camera Rotation" />
+        <import type="com.shiftpsh.sensortester.camerainfo.item.CameraPropertyViewModel" />
 
-    <TextView
-        android:id="@+id/ui_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minHeight="32dp"
-        android:layout_toRightOf="@+id/ui_title"
-        android:layout_alignParentRight="true"
-        android:gravity="center_vertical|right"
-        tools:text="90°" />
-</RelativeLayout>
+        <variable
+            name="vm"
+            type="com.shiftpsh.sensortester.camerainfo.item.CameraPropertyViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="144dp"
+        android:padding="8dp">
+
+        <ImageView
+            android:id="@+id/ui_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_margin="4dp"
+            app:imageResource="@{vm.property.icon}"
+            tools:src="@drawable/ic_rotate_90_degrees_ccw_black_24dp" />
+
+        <TextView
+            android:id="@+id/ui_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:layout_toRightOf="@+id/ui_icon"
+            android:gravity="center_vertical"
+            android:minHeight="32dp"
+            android:text="@{vm.property.key}"
+            android:textColor="@android:color/black"
+            tools:text="Camera Rotation" />
+
+        <TextView
+            android:id="@+id/ui_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/ui_description"
+            android:layout_alignEnd="@+id/ui_description"
+            android:layout_marginBottom="-8dp"
+            android:gravity="center_vertical|right"
+            android:text="@{vm.property.value}"
+            android:textColor="@color/colorPrimary"
+            android:textSize="36sp"
+            tools:text="90°" />
+
+        <TextView
+            android:id="@+id/ui_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="8dp"
+            android:gravity="center_vertical"
+            android:text="@{vm.property.description}"
+            android:ellipsize="end"
+            android:singleLine="true"
+            tools:text="Camera Rotation" />
+    </RelativeLayout>
+</layout>
