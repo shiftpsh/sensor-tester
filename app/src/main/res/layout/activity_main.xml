@@ -1,42 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <android.support.design.widget.AppBarLayout
+    <data>
+        <import type="com.shiftpsh.sensortester.main.MainViewModel"/>
+        <variable
+            name="vm"
+            type="com.shiftpsh.sensortester.main.MainViewModel" />
+    </data>
+
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <android.support.v7.widget.Toolbar
+        android:layout_height="match_parent"
+        tools:context=".main.MainActivity">
+
+        <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-        </android.support.v7.widget.Toolbar>
-    </android.support.design.widget.AppBarLayout>
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/ui_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:titleTextColor="@android:color/white">
 
-    <android.support.constraint.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+            </android.support.v7.widget.Toolbar>
+        </android.support.design.widget.AppBarLayout>
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="hello world" />
-
-        <android.support.v4.view.ViewPager
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
 
-    </android.support.constraint.ConstraintLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="hello world" />
 
-    <android.support.design.widget.BottomNavigationView
-        android:id="@+id/ui_bottom_navigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        app:menu="@menu/menu_bottom_navigation" />
+            <android.support.v4.view.ViewPager
+                android:id="@+id/ui_fragment_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:currentItem="@{vm.currentPage}"
+                app:onPageChangeListener="@{vm.onPageChangeListener}" />
 
-</android.support.design.widget.CoordinatorLayout>
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.design.widget.BottomNavigationView
+            android:id="@+id/ui_bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            app:setSelectedItemId="@{vm.currentMenuItem}"
+            app:menu="@menu/menu_bottom_navigation"
+            app:onNavigationItemSelectedListener="@{vm.onNavigationItemSelectedListener}" />
+
+    </android.support.design.widget.CoordinatorLayout>
+</layout>
