@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/item_camera_rear"
+        android:icon="@drawable/ic_camera_rear_black_24dp"
+        android:title="@string/menu_item_camera_rear" />
+    <item
+        android:id="@+id/item_camera_front"
+        android:icon="@drawable/ic_camera_front_black_24dp"
+        android:title="@string/menu_item_camera_front" />
+    <item
+        android:id="@+id/item_sensors"
+        android:icon="@drawable/ic_sensor_black_24dp"
+        android:title="@string/menu_item_sensors" />
+</menu>
