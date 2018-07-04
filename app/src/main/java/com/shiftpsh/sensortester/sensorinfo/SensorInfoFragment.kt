@@ -16,10 +16,8 @@ import com.shiftpsh.sensortester.BaseRecyclerViewAdapter
 import com.shiftpsh.sensortester.R
 import com.shiftpsh.sensortester.databinding.FragmentSensorInfoBinding
 import com.shiftpsh.sensortester.databinding.ItemSensorPropertiesBinding
-import com.shiftpsh.sensortester.extension.onPropertyChanged
 import com.shiftpsh.sensortester.sensorinfo.item.*
 import kotlinx.android.synthetic.main.fragment_sensor_info.*
-import timber.log.Timber
 
 class SensorInfoFragment : Fragment() {
 
