@@ -2,39 +2,86 @@ package com.shiftpsh.sensortester.sensorinfo.item
 
 import android.hardware.Sensor
 import android.hardware.SensorEvent
+import com.shiftpsh.sensortester.R
 
-enum class SensorDataType(val defaultFormat: (SensorEvent) -> String) {
-    VECTOR3({
-        "x = %.2f[unit], y = %.2f[unit], z = %.2f[unit]".format(it.values[0], it.values[1], it.values[2])
-    }),
-    VECTOR_ROTATION({
-        "xsin(θ/2) = %.2f[unit], ysin(θ/2) = %.2f[unit], zsin(θ/2) = %.2f[unit]".format(it.values[0], it.values[1], it.values[2])
-    }),
-    ORIENTATION({
-        "azimuth = %.2f[unit], pitch = %.2f[unit], roll = %.2f[unit]".format(it.values[0], it.values[1], it.values[2])
-    }),
-    SCALAR({
-        "%.2f[unit]".format(it.values[0])
-    }),
-    SCALAR_PERCENT({
-        "%.2f[unit]".format(it.values[0] * 100)
-    });
+enum class SensorDataType(val argCount: Int, val defaultFormat: String) {
+    VECTOR3(
+            3, "x = %.2f[unit], y = %.2f[unit], z = %.2f[unit]"
+    ),
+    VECTOR_ROTATION(
+            3, "xsin(θ/2) = %.2f[unit], ysin(θ/2) = %.2f[unit], zsin(θ/2) = %.2f[unit]"
+    ),
+    ORIENTATION(
+            3, "azimuth = %.2f[unit], pitch = %.2f[unit], roll = %.2f[unit]"
+    ),
+    SCALAR(
+            1, "%.2f[unit]"
+    ),
+    SCALAR_INT(
+            1, "%d[unit]"
+    ),
+    SCALAR_PERCENT(
+            1, "%.2f[unit]"
+    );
 }
 
-fun SensorEvent.format(type: SensorDataType, unit: String)
-        = type.defaultFormat(this).replace("[unit]", if (unit.isEmpty()) "" else " $unit")
+class SensorFormat {
+    companion object {
+        fun format(event: SensorEvent, type: SensorDataType, unit: String) = type.defaultFormat
+                .replace("[unit]", if (unit.isEmpty()) "" else " $unit")
+                .let {
+                    with(event) {
+                        when (type) {
+                            SensorDataType.VECTOR3,
+                            SensorDataType.VECTOR_ROTATION,
+                            SensorDataType.ORIENTATION -> it.format(values[0], values[1], values[2])
+                            SensorDataType.SCALAR -> it.format(values[0])
+                            SensorDataType.SCALAR_INT -> it.format(values[0].toInt())
+                            SensorDataType.SCALAR_PERCENT -> it.format(values[0] * 100)
+                        }
+                    }
+                }
+    }
+}
 
-enum class SensorType(val id: Int, val representation: String, val type: SensorDataType, val unit: String = "") {
-    ACCELEROMETER(Sensor.TYPE_ACCELEROMETER, "Accelerometer", SensorDataType.VECTOR3, "m/s²"),
-    AMBIENT_TEMPERATURE(Sensor.TYPE_AMBIENT_TEMPERATURE, "Ambient Temperature", SensorDataType.SCALAR, "°C"),
-    GEOMAGNETIC_ROTATION_VECTOR(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR, "Geomagnetic Rotation Vector", SensorDataType.VECTOR_ROTATION),
-    GRAVITY(Sensor.TYPE_GRAVITY, "Gravity", SensorDataType.VECTOR3, "m/s²"),
-    GYROSCOPE(Sensor.TYPE_GYROSCOPE, "Gyroscope", SensorDataType.VECTOR3, "rad/s"),
-    HEART_BEAT(Sensor.TYPE_HEART_BEAT, "Heartbeat Confidence", SensorDataType.SCALAR_PERCENT, "%"),
-    HEART_RATE(Sensor.TYPE_HEART_RATE, "Heart Rate", SensorDataType.SCALAR, "bpm"),
-    LIGHT(Sensor.TYPE_LIGHT, "Light", SensorDataType.SCALAR, "lux"),
-    LINEAR_ACCELERATION(Sensor.TYPE_LINEAR_ACCELERATION, "Linear Acceleration", SensorDataType.VECTOR3, "m/s²"),
-    MAGNETIC_FIELD(Sensor.TYPE_MAGNETIC_FIELD, "Magnetic Field", SensorDataType.VECTOR3, "µT"),
-
-
+enum class SensorType(val id: Int, val apiLevel: Int, val representation: String, val icon: Int, val type: SensorDataType, val unit: String = "") {
+    NULL(0, 0, "", 0, SensorDataType.SCALAR, ""),
+    ACCELEROMETER(Sensor.TYPE_ACCELEROMETER, 20,
+            "Accelerometer", R.drawable.ic_sensor_black_24dp, SensorDataType.VECTOR3, "m/s²"),
+    GRAVITY(Sensor.TYPE_GRAVITY, 20,
+            "Gravity", R.drawable.ic_public_black_24dp, SensorDataType.VECTOR3, "m/s²"),
+    GYROSCOPE(Sensor.TYPE_GYROSCOPE, 20,
+            "Gyroscope", R.drawable.ic_3d_rotation_black_24dp, SensorDataType.VECTOR3, "rad/s"),
+    HEART_BEAT(Sensor.TYPE_HEART_BEAT, 24,
+            "Heartbeat Confidence", R.drawable.ic_favorite_black_24dp, SensorDataType.SCALAR_PERCENT, "%"),
+    HEART_RATE(Sensor.TYPE_HEART_RATE, 20,
+            "Heart Rate", R.drawable.ic_favorite_black_24dp, SensorDataType.SCALAR, "bpm"),
+    HUMIDITY_RELATIVE(Sensor.TYPE_RELATIVE_HUMIDITY, 14,
+            "Relative Humidity", R.drawable.ic_invert_colors_black_24dp, SensorDataType.SCALAR_PERCENT, "%"),
+    LIGHT(Sensor.TYPE_LIGHT, 3,
+            "Light", R.drawable.ic_lightbulb_outline_black_24dp, SensorDataType.SCALAR, "lux"),
+    LINEAR_ACCELERATION(Sensor.TYPE_LINEAR_ACCELERATION, 9,
+            "Linear Acceleration", R.drawable.ic_call_made_black_24dp, SensorDataType.VECTOR3, "m/s²"),
+    MAGNETIC_FIELD(Sensor.TYPE_MAGNETIC_FIELD, 3,
+            "Magnetic Field", R.drawable.ic_leak_add_black_24dp, SensorDataType.VECTOR3, "µT"),
+    // MOTION_DETECT
+    ORIENTATION(Sensor.TYPE_ORIENTATION, 3,
+            "Orientation", R.drawable.ic_screen_rotation_black_24dp, SensorDataType.ORIENTATION),
+    // POSE_6DOF
+    PRESSURE(Sensor.TYPE_PRESSURE, 3,
+            "Pressure", R.drawable.ic_fullscreen_exit_black_24dp, SensorDataType.SCALAR, "hPa"),
+    PROXIMITY(Sensor.TYPE_PROXIMITY, 3,
+            "Proximity", R.drawable.ic_settings_ethernet_black_24dp, SensorDataType.SCALAR, "cm"),
+    ROTATION_VECTOR(Sensor.TYPE_ROTATION_VECTOR, 9,
+            "Rotation Vector", R.drawable.ic_3d_rotation_black_24dp, SensorDataType.VECTOR_ROTATION),
+    ROTATION_VECTOR_GEOMAGNETIC(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR, 20,
+            "Geomagnetic Rotation Vector", R.drawable.ic_3d_rotation_black_24dp, SensorDataType.VECTOR_ROTATION),
+    STEP_COUNTER(Sensor.TYPE_STEP_COUNTER, 19,
+            "Step Counter", R.drawable.ic_directions_walk_black_24dp, SensorDataType.SCALAR_INT, "steps"),
+    // STATIONARY_DETECT
+    // STEP_DETECTOR
+    TEMPERATURE(Sensor.TYPE_TEMPERATURE, 3,
+            "Temperature", R.drawable.ic_ac_unit_black_24dp, SensorDataType.SCALAR, "°C"),
+    TEMPERATURE_AMBIENT(Sensor.TYPE_AMBIENT_TEMPERATURE, 20,
+            "Ambient Temperature", R.drawable.ic_ac_unit_black_24dp, SensorDataType.SCALAR, "°C")
 }

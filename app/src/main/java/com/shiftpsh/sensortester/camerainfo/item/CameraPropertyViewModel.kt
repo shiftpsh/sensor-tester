@@ -6,7 +6,7 @@ import com.shiftpsh.sensortester.BaseItemViewModel
 
 class CameraPropertyViewModel : BaseItemViewModel<CameraProperty>() {
 
-    var property = ObservableField<CameraProperty>(
+    val property = ObservableField<CameraProperty>(
             CameraProperty("", 0, "")
     )
 
