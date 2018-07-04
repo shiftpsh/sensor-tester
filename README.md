@@ -1,2 +1,2 @@
 # sensor-tester
-Test available camera and sensors for Android.
+Test available cameras and sensors for Android.
