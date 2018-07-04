@@ -56,7 +56,7 @@ enum class SensorType(val id: Int, val apiLevel: Int, val representation: String
     HEART_RATE(Sensor.TYPE_HEART_RATE, 20,
             "Heart Rate", R.drawable.ic_favorite_black_24dp, SensorDataType.SCALAR, "bpm"),
     HUMIDITY_RELATIVE(Sensor.TYPE_RELATIVE_HUMIDITY, 14,
-            "Relative Humidity", R.drawable.ic_invert_colors_black_24dp, SensorDataType.SCALAR_PERCENT, "%"),
+            "Relative Humidity", R.drawable.ic_invert_colors_black_24dp, SensorDataType.SCALAR, "%"),
     LIGHT(Sensor.TYPE_LIGHT, 3,
             "Light", R.drawable.ic_lightbulb_outline_black_24dp, SensorDataType.SCALAR, "lux"),
     LINEAR_ACCELERATION(Sensor.TYPE_LINEAR_ACCELERATION, 9,
