@@ -1,6 +1,7 @@
 package com.shiftpsh.sensortester.camerainfo
 
 import android.databinding.DataBindingUtil
+import android.databinding.ObservableBoolean
 import android.hardware.Camera
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -14,6 +15,7 @@ import com.shiftpsh.sensortester.camerainfo.item.CameraPropertyViewModel
 import com.shiftpsh.sensortester.camerainfo.item.getProperties
 import com.shiftpsh.sensortester.databinding.FragmentCameraInfoBinding
 import com.shiftpsh.sensortester.databinding.ItemPropertiesBinding
+import com.shiftpsh.sensortester.extension.onPropertyChanged
 import kotlinx.android.synthetic.main.fragment_camera_info.*
 import timber.log.Timber
 
@@ -22,6 +24,8 @@ class CameraInfoFragment : Fragment() {
     lateinit var viewModel: CameraInfoViewModel
     lateinit var camera: Camera
     lateinit var facing: Facing
+
+    val focused = ObservableBoolean(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,6 +77,20 @@ class CameraInfoFragment : Fragment() {
             }
         }.apply {
             items = camera.getProperties(facing)
+        }
+
+        ui_camera_preview.facing = facing.camera
+
+        focused.onPropertyChanged { sender, propertyId ->
+            try {
+                if (focused.get()) {
+                    ui_camera_preview.start()
+                } else {
+                    ui_camera_preview.stop()
+                }
+            } catch (e: Exception) {
+                Timber.e(e)
+            }
         }
     }
 

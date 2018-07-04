@@ -8,7 +8,9 @@ import com.shiftpsh.sensortester.R
 import com.shiftpsh.sensortester.camerainfo.CameraInfoFragment
 import com.shiftpsh.sensortester.camerainfo.Facing
 import com.shiftpsh.sensortester.databinding.ActivityMainBinding
+import com.shiftpsh.sensortester.extension.onPropertyChanged
 import com.shiftpsh.sensortester.extension.requestPermission
+import com.shiftpsh.sensortester.sensorinfo.SensorInfoFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -37,6 +39,11 @@ class MainActivity : AppCompatActivity() {
             bundleRear.putString("facing", Facing.REAR.name)
             it.arguments = bundleRear
             tempAdapter += it
+            it.focused.set(viewModel.currentPage.get() == 0)
+
+            viewModel.currentPage.onPropertyChanged { sender, propertyId ->
+                it.focused.set(viewModel.currentPage.get() == 0)
+            }
         }
 
         CameraInfoFragment().let {
@@ -44,16 +51,18 @@ class MainActivity : AppCompatActivity() {
             bundleFront.putString("facing", Facing.FRONT.name)
             it.arguments = bundleFront
             tempAdapter += it
+            it.focused.set(viewModel.currentPage.get() == 1)
+
+            viewModel.currentPage.onPropertyChanged { sender, propertyId ->
+                it.focused.set(viewModel.currentPage.get() == 1)
+            }
         }
 
-        // TODO replace this with SensorAdapter
-        CameraInfoFragment().let {
-            val bundleRear = Bundle()
-            bundleRear.putString("facing", Facing.REAR.name)
-            it.arguments = bundleRear
+        SensorInfoFragment().let {
             tempAdapter += it
         }
 
+        ui_fragment_container.offscreenPageLimit = 3
         ui_fragment_container.adapter = tempAdapter
     }
 }

@@ -57,5 +57,6 @@ dependencies {
     // Etc
     implementation "com.jakewharton.timber:timber:4.7.1"
     implementation "com.karumi:dexter:5.0.0"
-    implementation "me.grantland:autofittextview:0.2.1"
+    implementation "com.wonderkiln:camerakit:0.13.1"
+
 }
