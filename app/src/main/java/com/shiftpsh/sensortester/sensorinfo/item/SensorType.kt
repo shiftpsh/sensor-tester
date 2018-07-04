@@ -6,13 +6,13 @@ import com.shiftpsh.sensortester.R
 
 enum class SensorDataType(val argCount: Int, val defaultFormat: String) {
     VECTOR3(
-            3, "x = %.2f[unit], y = %.2f[unit], z = %.2f[unit]"
+            3, "x = %.2f[unit]\ny = %.2f[unit]\nz = %.2f[unit]"
     ),
     VECTOR_ROTATION(
-            3, "xsin(θ/2) = %.2f[unit], ysin(θ/2) = %.2f[unit], zsin(θ/2) = %.2f[unit]"
+            3, "xsin(θ/2) = %.2f[unit]\nysin(θ/2) = %.2f[unit]\nzsin(θ/2) = %.2f[unit]"
     ),
     ORIENTATION(
-            3, "azimuth = %.2f[unit], pitch = %.2f[unit], roll = %.2f[unit]"
+            3, "azimuth = %.2f[unit]\npitch = %.2f[unit]\nroll = %.2f[unit]"
     ),
     SCALAR(
             1, "%.2f[unit]"
@@ -28,7 +28,6 @@ enum class SensorDataType(val argCount: Int, val defaultFormat: String) {
 class SensorFormat {
     companion object {
         fun format(event: SensorEvent, type: SensorDataType, unit: String) = type.defaultFormat
-                .replace("[unit]", if (unit.isEmpty()) "" else " $unit")
                 .let {
                     with(event) {
                         when (type) {
@@ -40,7 +39,7 @@ class SensorFormat {
                             SensorDataType.SCALAR_PERCENT -> it.format(values[0] * 100)
                         }
                     }
-                }
+                }.replace("[unit]", if (unit.isEmpty()) "" else " $unit")
     }
 }
 

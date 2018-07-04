@@ -17,7 +17,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="96dp"
+        android:layout_height="120dp"
         android:padding="8dp">
 
         <ImageView
@@ -47,11 +47,16 @@
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/ui_value"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="64dp"
             android:layout_alignParentBottom="true"
-            android:layout_margin="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:gravity="bottom|right"
-            android:maxLines="1"
+            android:maxLines="3"
             android:text="@{vm.property.value}"
             android:textColor="@color/colorPrimary"
             app:autoSizeMaxTextSize="36sp"
