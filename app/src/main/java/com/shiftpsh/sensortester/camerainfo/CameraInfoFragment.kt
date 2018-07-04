@@ -14,7 +14,7 @@ import com.shiftpsh.sensortester.camerainfo.item.CameraProperty
 import com.shiftpsh.sensortester.camerainfo.item.CameraPropertyViewModel
 import com.shiftpsh.sensortester.camerainfo.item.getProperties
 import com.shiftpsh.sensortester.databinding.FragmentCameraInfoBinding
-import com.shiftpsh.sensortester.databinding.ItemPropertiesBinding
+import com.shiftpsh.sensortester.databinding.ItemCameraPropertiesBinding
 import com.shiftpsh.sensortester.extension.onPropertyChanged
 import kotlinx.android.synthetic.main.fragment_camera_info.*
 import timber.log.Timber
@@ -25,7 +25,7 @@ class CameraInfoFragment : Fragment() {
     lateinit var camera: Camera
     lateinit var facing: Facing
 
-    val focused = ObservableBoolean(false)
+    val focused = ObservableBoolean(true)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,11 +66,11 @@ class CameraInfoFragment : Fragment() {
         ui_properties.adapter = object : BaseRecyclerViewAdapter<CameraProperty, CameraPropertyViewModel>() {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder<CameraProperty, CameraPropertyViewModel> {
                 val itemView = LayoutInflater.from(context)
-                        .inflate(R.layout.item_properties, parent, false)
+                        .inflate(R.layout.item_camera_properties, parent, false)
 
                 val viewModel = CameraPropertyViewModel()
 
-                val binding = ItemPropertiesBinding.bind(itemView)
+                val binding = ItemCameraPropertiesBinding.bind(itemView)
                 binding.vm = viewModel
 
                 return ItemViewHolder(itemView, binding, viewModel)
@@ -92,10 +92,6 @@ class CameraInfoFragment : Fragment() {
                 Timber.e(e)
             }
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
     }
 
 }
