@@ -107,6 +107,7 @@ class SensorInfoFragment : Fragment() {
     // FIXME onPause() / onResume() takes so long: lags when orientation changes
     override fun onPause() {
         super.onPause()
+
         val sensorManager = context!!.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         for (listener in sensorListeners) {
             sensorManager.unregisterListener(listener.second)

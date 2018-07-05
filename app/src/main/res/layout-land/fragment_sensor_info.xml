@@ -26,7 +26,7 @@
             android:orientation="vertical"
             android:padding="16dp"
             app:layoutManager="android.support.v7.widget.GridLayoutManager"
-            app:spanCount="1">
+            app:spanCount="2">
 
         </android.support.v7.widget.RecyclerView>
     </android.support.v4.widget.NestedScrollView>

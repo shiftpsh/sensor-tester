@@ -14,8 +14,6 @@ import com.shiftpsh.sensortester.extension.onPropertyChanged
 import com.shiftpsh.sensortester.extension.requestPermission
 import com.shiftpsh.sensortester.sensorinfo.SensorInfoFragment
 import kotlinx.android.synthetic.main.activity_main.*
-import timber.log.Timber
-
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,7 +28,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         val initialIndex = savedInstanceState?.getInt("index") ?: 0
-        Timber.d("onCreate: $initialIndex")
 
         setSupportActionBar(ui_toolbar)
         requestPermission(Manifest.permission.CAMERA) { initialize(initialIndex) }
@@ -79,7 +76,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle?) {
         outState?.putInt("index", viewModel.currentPage.get())
-        Timber.d("onSaveInstanceState: ${viewModel.currentPage.get()}")
         super.onSaveInstanceState(outState)
     }
 }
