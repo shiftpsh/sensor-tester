@@ -92,6 +92,8 @@ class CameraInfoFragment : Fragment() {
                 Timber.e(e)
             }
         }
+
+        if (focused.get()) ui_camera_preview.start()
     }
 
 }

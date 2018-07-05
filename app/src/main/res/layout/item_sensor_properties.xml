@@ -18,7 +18,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        android:padding="8dp">
+        android:padding="8dp"
+        android:onClick="@{vm::onClick}">
 
         <ImageView
             android:id="@+id/ui_icon"
@@ -32,12 +33,12 @@
 
         <TextView
             android:id="@+id/ui_title"
-            android:layout_width="wrap_content"
+            android:layout_width="288dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_marginLeft="4dp"
             android:layout_marginRight="4dp"
             android:layout_toRightOf="@+id/ui_icon"
+            android:layout_toLeftOf="@+id/ui_more"
             android:gravity="center_vertical"
             android:minHeight="32dp"
             android:text="@{vm.property.type.representation}"
@@ -64,6 +65,16 @@
             app:autoSizeStepGranularity="2sp"
             app:autoSizeTextType="uniform"
             tools:text="90°" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/ui_more"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_margin="4dp"
+            android:visibility="@{vm.property.supported ? View.VISIBLE : View.INVISIBLE}"
+            app:srcCompat="@drawable/ic_more_horiz_black_24dp" />
 
     </RelativeLayout>
 </layout>

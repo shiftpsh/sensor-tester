@@ -66,7 +66,7 @@ class SensorInfoFragment : Fragment() {
 
                                 val sensor = sensorManager.getDefaultSensor(property.type.id)
                                 if (sensor == null) {
-                                    set(SensorProperty(property.type, "unsupported"))
+                                    set(SensorProperty(property.type, "unsupported", false))
                                 } else {
                                     sensorManager.registerListener(object : SensorEventListener {
                                         override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
@@ -74,7 +74,7 @@ class SensorInfoFragment : Fragment() {
 
                                         override fun onSensorChanged(p0: SensorEvent?) {
                                             p0 ?: return
-                                            set(SensorProperty(property.type, SensorFormat.format(p0, property.type.type, property.type.unit)))
+                                            set(SensorProperty(property.type, SensorFormat.format(p0, property.type.type, property.type.unit), true))
                                         }
                                     }, sensor, SensorManager.SENSOR_DELAY_NORMAL)
                                 }

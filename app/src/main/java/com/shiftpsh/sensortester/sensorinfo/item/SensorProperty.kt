@@ -1,8 +1,44 @@
 package com.shiftpsh.sensortester.sensorinfo.item
 
+import android.app.AlertDialog
+import android.content.Context
+import android.content.DialogInterface
+import android.hardware.SensorManager
 import android.os.Build
+import android.widget.ArrayAdapter
 
-class SensorProperty(val type: SensorType, val value: String)
+class SensorProperty(val type: SensorType, val value: String, val supported: Boolean) {
+    fun click(context: Context) {
+        if (type == SensorType.NULL) return
+        if (!supported) return
+        val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val sensor = sensorManager.getDefaultSensor(type.id)
+
+        val details = ArrayList<String>()
+        details += "Name = " + sensor.name
+        details += "Vendor = " + sensor.vendor
+        details += "Version = " + sensor.version
+        details += "Delay = %.2f .. %.2f ms".format(sensor.minDelay / 1000.0f, sensor.maxDelay / 1000.0f)
+        details += if (sensor.resolution < 0.01f) {
+            "Resolution = %.4e ${type.unit}".format(sensor.resolution)
+        } else {
+            "Resolution = %.4f ${type.unit}".format(sensor.resolution)
+        }
+        details += "Max Range = %.2f ${type.unit}".format(sensor.maximumRange)
+        details += "Power Consuming = %.2f mA".format(sensor.power)
+
+        val builder = AlertDialog.Builder(context)
+        builder.setAdapter(ArrayAdapter(context, android.R.layout.simple_list_item_1, details), DialogInterface.OnClickListener { dialogInterface, i ->
+
+        })
+
+        builder.setTitle(type.representation)
+        builder.setIcon(type.icon)
+        builder.setCancelable(true)
+
+        builder.create().show()
+    }
+}
 
 fun getSensorProperties(): ArrayList<SensorProperty> {
     val apiVersion = Build.VERSION.SDK_INT
@@ -13,7 +49,7 @@ fun getSensorProperties(): ArrayList<SensorProperty> {
 
         if (type.apiLevel <= apiVersion) {
             temp += SensorProperty(
-                    type, "-"
+                    type, "-", false
             )
         } // TODO
     }
