@@ -20,11 +20,11 @@ class SensorProperty(val type: SensorType, val value: String, val supported: Boo
         details += "Version = " + sensor.version
         details += "Delay = %.2f .. %.2f ms".format(sensor.minDelay / 1000.0f, sensor.maxDelay / 1000.0f)
         details += if (sensor.resolution < 0.01f) {
-            "Resolution = %.4e ${type.unit}".format(sensor.resolution)
+            "Resolution = %.4e ".format(sensor.resolution) + type.unit
         } else {
-            "Resolution = %.4f ${type.unit}".format(sensor.resolution)
+            "Resolution = %.4f ".format(sensor.resolution) + type.unit
         }
-        details += "Max Range = %.2f ${type.unit}".format(sensor.maximumRange)
+        details += "Max Range = %.2f ".format(sensor.maximumRange) + type.unit
         details += "Power Consuming = %.2f mA".format(sensor.power)
 
         val builder = AlertDialog.Builder(context)
