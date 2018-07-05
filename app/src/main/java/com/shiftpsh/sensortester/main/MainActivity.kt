@@ -70,6 +70,7 @@ class MainActivity : AppCompatActivity() {
         ui_fragment_container.post {
             ui_fragment_container.setCurrentItem(initialIndex, false)
         }
+
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {

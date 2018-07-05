@@ -25,11 +25,10 @@
             android:background="@android:color/black"
             app:layout_constraintDimensionRatio="16:9">
 
-            <com.wonderkiln.camerakit.CameraView
+            <com.shiftpsh.sensortester.camera.CameraView
                 android:id="@+id/ui_camera_preview"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:adjustViewBounds="true" />
+                android:layout_height="match_parent" />
 
             <android.support.v7.widget.AppCompatImageView
                 android:layout_width="48dp"

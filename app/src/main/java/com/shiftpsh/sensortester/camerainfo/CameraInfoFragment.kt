@@ -22,10 +22,9 @@ import timber.log.Timber
 class CameraInfoFragment : Fragment() {
 
     lateinit var viewModel: CameraInfoViewModel
-    lateinit var camera: Camera
     lateinit var facing: Facing
 
-    val focused = ObservableBoolean(true)
+    val focused = ObservableBoolean(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,19 +48,14 @@ class CameraInfoFragment : Fragment() {
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
+        Timber.d("CameraInfoFragment onActivityCreated")
         super.onActivityCreated(savedInstanceState)
 
         lifecycle.addObserver(viewModel)
 
         viewModel.cameraFacing.set(facing)
 
-        try {
-            camera = Camera.open(facing.camera)
-            viewModel.cameraAvailable.set(true)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return
-        }
+        ui_camera_preview.facing = facing
 
         ui_properties.adapter = object : BaseRecyclerViewAdapter<CameraProperty, CameraPropertyViewModel>() {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder<CameraProperty, CameraPropertyViewModel> {
@@ -76,15 +70,14 @@ class CameraInfoFragment : Fragment() {
                 return ItemViewHolder(itemView, binding, viewModel)
             }
         }.apply {
-            items = camera.getProperties(facing)
+            items = ui_camera_preview.camera?.getProperties(facing) ?: arrayListOf()
         }
-
-        ui_camera_preview.facing = facing.camera
 
         focused.onPropertyChanged { sender, propertyId ->
             try {
                 if (focused.get()) {
                     ui_camera_preview.start()
+                    viewModel.cameraAvailable.set(ui_camera_preview.cameraAvailable)
                 } else {
                     ui_camera_preview.stop()
                 }
@@ -92,17 +85,18 @@ class CameraInfoFragment : Fragment() {
                 Timber.e(e)
             }
         }
-
-        if (focused.get()) ui_camera_preview.start()
     }
 
     override fun onResume() {
         super.onResume()
-        if (focused.get()) ui_camera_preview.start()
+        Timber.d("CameraInfoFragment onResume")
+        ui_camera_preview.start()
+        if (focused.get()) viewModel.cameraAvailable.set(ui_camera_preview.cameraAvailable)
     }
 
     override fun onPause() {
         super.onPause()
+        Timber.d("CameraInfoFragment onPause")
         ui_camera_preview.stop()
     }
 

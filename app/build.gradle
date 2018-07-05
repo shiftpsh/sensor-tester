@@ -29,34 +29,26 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
-
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     // Tests
-    testImplementation "junit:junit:4.12"
-    androidTestImplementation "com.android.support.test:runner:1.0.2"
-    androidTestImplementation "com.android.support.test.espresso:espresso-core:3.0.2"
-
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-
     // Support Libs
     implementation "com.android.support:support-v4:$support_version"
     implementation "com.android.support:appcompat-v7:$support_version"
     implementation "com.android.support:design:$support_version"
-    implementation "com.android.support.constraint:constraint-layout:1.1.2"
-
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     // Databinding
     kapt "com.android.databinding:compiler:$gradle_plugin_version"
-
     // Lifecycle
     implementation "android.arch.lifecycle:common-java8:$lifecycle_version"
     implementation "android.arch.lifecycle:extensions:$lifecycle_version"
     implementation "android.arch.lifecycle:reactivestreams:$lifecycle_version"
     kapt "android.arch.lifecycle:compiler:$lifecycle_version"
-
     // Etc
-    implementation "com.jakewharton.timber:timber:4.7.1"
-    implementation "com.karumi:dexter:5.0.0"
-    implementation "com.wonderkiln:camerakit:0.13.1"
-
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+    implementation 'com.karumi:dexter:5.0.0'
 }
