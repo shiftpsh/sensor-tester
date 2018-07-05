@@ -2,7 +2,7 @@ package com.shiftpsh.sensortester.sensorinfo
 
 import com.shiftpsh.sensortester.BaseViewModel
 
-class SensorInfoViewModel: BaseViewModel() {
+class SensorInfoViewModel : BaseViewModel() {
     override fun onCreate() {
     }
 

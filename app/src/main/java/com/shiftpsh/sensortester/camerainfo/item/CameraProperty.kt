@@ -11,13 +11,12 @@ import com.shiftpsh.sensortester.extension.calculateCameraRotation
 import com.shiftpsh.sensortester.extension.examples
 import com.shiftpsh.sensortester.extension.formatNumber
 import com.shiftpsh.sensortester.extension.formatSize
-import timber.log.Timber
 
 class CameraProperty(val key: String, val icon: Int, val value: String, val description: String = "", val details: List<String>? = listOf()) {
     constructor(property: DefaultCameraProperty, value: String, description: String = "", details: List<String>? = listOf())
             : this(property.key, property.icon, value, description, details)
 
-    fun click (context: Context) {
+    fun click(context: Context) {
         if (details == null) return
         if (details.isEmpty()) return
 

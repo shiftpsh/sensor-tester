@@ -3,9 +3,7 @@ package com.shiftpsh.sensortester.main
 import android.Manifest
 import android.databinding.DataBindingUtil
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.ViewUtils
 import com.shiftpsh.sensortester.R
 import com.shiftpsh.sensortester.camerainfo.CameraInfoFragment
 import com.shiftpsh.sensortester.camerainfo.Facing

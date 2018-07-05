@@ -4,10 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <import type="android.view.View"/>
+
+        <import type="android.view.View" />
+
         <import type="com.shiftpsh.sensortester.sensorinfo.item.SensorPropertyViewModel" />
+
         <import type="com.shiftpsh.sensortester.sensorinfo.item.SensorType" />
+
         <import type="com.shiftpsh.sensortester.sensorinfo.item.SensorFormat" />
+
         <import type="com.shiftpsh.sensortester.sensorinfo.item.SensorProperty" />
 
         <variable

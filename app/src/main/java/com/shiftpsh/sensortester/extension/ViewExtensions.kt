@@ -12,6 +12,6 @@ fun View.isCompletelyVisible(context: Context): Boolean {
     val metrics = context.resources.displayMetrics
     val actualPosition = Rect()
     getGlobalVisibleRect(actualPosition)
-    val screen = Rect(0, 0,  metrics.widthPixels, metrics.heightPixels)
+    val screen = Rect(0, 0, metrics.widthPixels, metrics.heightPixels)
     return actualPosition.intersect(screen)
 }

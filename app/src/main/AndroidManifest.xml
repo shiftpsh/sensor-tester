@@ -15,8 +15,7 @@
 
         <!--TODO Support landscape orientation as well-->
 
-        <activity
-            android:name=".main.MainActivity">
+        <activity android:name=".main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

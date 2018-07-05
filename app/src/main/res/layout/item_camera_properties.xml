@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <import type="android.view.View"/>
+
+        <import type="android.view.View" />
+
         <import type="com.shiftpsh.sensortester.camerainfo.item.CameraPropertyViewModel" />
 
         <variable
