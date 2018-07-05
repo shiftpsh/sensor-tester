@@ -8,6 +8,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -63,26 +64,31 @@ class SensorInfoFragment : Fragment() {
                 with(viewModel.property) {
                     val x = object : Observable.OnPropertyChangedCallback() {
                         override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                            val apiVersion = Build.VERSION.SDK_INT
                             val property = get()!!
                             if (get()?.type != SensorType.NULL) {
                                 removeOnPropertyChangedCallback(this)
 
-                                val sensor = sensorManager.getDefaultSensor(property.type.id)
-                                if (sensor == null) {
-                                    set(SensorProperty(property.type, "unsupported", false))
-                                } else {
-                                    val listener = object : SensorEventListener {
-                                        override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
+                                if (property.type.apiLevel <= apiVersion) {
+                                    val sensor = sensorManager.getDefaultSensor(property.type.id)
+                                    if (sensor == null) {
+                                        set(SensorProperty(property.type, "unsupported", false))
+                                    } else {
+                                        val listener = object : SensorEventListener {
+                                            override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
+                                            }
+
+                                            override fun onSensorChanged(p0: SensorEvent?) {
+                                                p0 ?: return
+                                                set(SensorProperty(property.type, SensorFormat.format(p0, property.type.type, property.type.unit), true))
+                                            }
                                         }
 
-                                        override fun onSensorChanged(p0: SensorEvent?) {
-                                            p0 ?: return
-                                            set(SensorProperty(property.type, SensorFormat.format(p0, property.type.type, property.type.unit), true))
-                                        }
+                                        sensorListeners += property.type to listener
+                                        sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL)
                                     }
-
-                                    sensorListeners += property.type to listener
-                                    sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+                                } else {
+                                    set(SensorProperty(property.type, "API ${property.type.apiLevel} needed", false))
                                 }
                             }
                         }
@@ -98,6 +104,7 @@ class SensorInfoFragment : Fragment() {
         }
     }
 
+    // FIXME onPause() / onResume() takes so long: lags when orientation changes
     override fun onPause() {
         super.onPause()
         val sensorManager = context!!.getSystemService(Context.SENSOR_SERVICE) as SensorManager

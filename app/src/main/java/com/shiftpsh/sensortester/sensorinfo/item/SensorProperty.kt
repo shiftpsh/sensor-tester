@@ -51,7 +51,11 @@ fun getSensorProperties(): ArrayList<SensorProperty> {
             temp += SensorProperty(
                     type, "-", false
             )
-        } // TODO
+        } else {
+            temp += SensorProperty(
+                    type, "API ${type.apiLevel} needed", false
+            )
+        }
     }
 
     return temp

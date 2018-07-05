@@ -91,27 +91,27 @@ fun Camera.getProperties(facing: Facing): ArrayList<CameraProperty> {
         temp += supportedPreviewSizes.let {
             CameraProperty(
                     DefaultCameraProperty.SIZES_PREVIEW,
-                    if (it.isNotEmpty()) it.maxBy { it.height * it.width }.let { "${it!!.height} × ${it.width}" } else "",
+                    if (it != null) if (it.isNotEmpty()) it.maxBy { it.height * it.width }.let { "${it!!.height} × ${it.width}" } else "" else "",
                     it.formatSize("size", "sizes"),
-                    details = it.map { "${it!!.height} × ${it.width}" }
+                    details = it?.map { "${it!!.height} × ${it.width}" }
             )
         }
 
         temp += supportedPictureSizes.let {
             CameraProperty(
                     DefaultCameraProperty.SIZES_PICTURE,
-                    if (it.isNotEmpty()) it.maxBy { it.height * it.width }.let { "${it!!.height} × ${it.width}" } else "",
+                    if (it != null) if (it.isNotEmpty()) it.maxBy { it.height * it.width }.let { "${it!!.height} × ${it.width}" } else "" else "",
                     it.formatSize("size", "sizes"),
-                    details = it.map { "${it!!.height} × ${it.width}" }
+                    details = it?.map { "${it!!.height} × ${it.width}" }
             )
         }
 
         temp += supportedVideoSizes.let {
             CameraProperty(
                     DefaultCameraProperty.SIZES_VIDEO,
-                    if (it.isNotEmpty()) it.maxBy { it.height * it.width }.let { "${it!!.height} × ${it.width}" } else "",
+                    if (it != null) if (it.isNotEmpty()) it.maxBy { it.height * it.width }.let { "${it!!.height} × ${it.width}" } else "" else "",
                     it.formatSize("size", "sizes"),
-                    details = it.map { "${it!!.height} × ${it.width}" }
+                    details = it?.map { "${it!!.height} × ${it.width}" }
             )
         }
 
@@ -170,9 +170,9 @@ fun Camera.getProperties(facing: Facing): ArrayList<CameraProperty> {
         temp += zoomRatios.let {
             CameraProperty(
                     DefaultCameraProperty.ZOOM_RATIO,
-                    if (it.isNotEmpty()) "×%.2f".format(it.max()!! / 100.0f) else "",
+                    if (it != null) if (it.isNotEmpty()) "×%.2f".format(it.max()!! / 100.0f) else "" else "",
                     it.formatSize("step", "steps"),
-                    it.map { "×%.2f".format(it / 100.0f) }
+                    it?.map { "×%.2f".format(it / 100.0f) }
             )
         }
 
