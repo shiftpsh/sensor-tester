@@ -96,4 +96,14 @@ class CameraInfoFragment : Fragment() {
         if (focused.get()) ui_camera_preview.start()
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (focused.get()) ui_camera_preview.start()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        ui_camera_preview.stop()
+    }
+
 }

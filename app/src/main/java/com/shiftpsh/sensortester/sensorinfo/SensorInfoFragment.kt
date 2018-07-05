@@ -3,6 +3,7 @@ package com.shiftpsh.sensortester.sensorinfo
 import android.content.Context
 import android.databinding.DataBindingUtil
 import android.databinding.Observable
+import android.databinding.ObservableField
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -22,6 +23,8 @@ import kotlinx.android.synthetic.main.fragment_sensor_info.*
 class SensorInfoFragment : Fragment() {
 
     lateinit var viewModel: SensorInfoViewModel
+    val observables: ArrayList<Pair<SensorType, ObservableField<SensorFormat>>> = arrayListOf()
+    val sensorListeners: ArrayList<Pair<SensorType, SensorEventListener>> = arrayListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,7 +71,7 @@ class SensorInfoFragment : Fragment() {
                                 if (sensor == null) {
                                     set(SensorProperty(property.type, "unsupported", false))
                                 } else {
-                                    sensorManager.registerListener(object : SensorEventListener {
+                                    val listener = object : SensorEventListener {
                                         override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
                                         }
 
@@ -76,7 +79,10 @@ class SensorInfoFragment : Fragment() {
                                             p0 ?: return
                                             set(SensorProperty(property.type, SensorFormat.format(p0, property.type.type, property.type.unit), true))
                                         }
-                                    }, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+                                    }
+
+                                    sensorListeners += property.type to listener
+                                    sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL)
                                 }
                             }
                         }
@@ -89,6 +95,23 @@ class SensorInfoFragment : Fragment() {
         }.let {
             it.items = getSensorProperties()
             ui_properties.adapter = it
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        val sensorManager = context!!.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        for (listener in sensorListeners) {
+            sensorManager.unregisterListener(listener.second)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val sensorManager = context!!.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        for (listener in sensorListeners) {
+            val sensor = sensorManager.getDefaultSensor(listener.first.id)
+            sensorManager.registerListener(listener.second, sensor, SensorManager.SENSOR_DELAY_NORMAL)
         }
     }
 }
