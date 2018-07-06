@@ -48,13 +48,13 @@ class CameraInfoFragment : Fragment() {
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
-        Timber.d("CameraInfoFragment onActivityCreated")
+        Timber.d("CameraInfoFragment($facing) onActivityCreated")
         super.onActivityCreated(savedInstanceState)
 
         lifecycle.addObserver(viewModel)
 
+        // TODO MVVM
         viewModel.cameraFacing.set(facing)
-
         ui_camera_preview.facing = facing
 
         ui_properties.adapter = object : BaseRecyclerViewAdapter<CameraProperty, CameraPropertyViewModel>() {
@@ -72,32 +72,37 @@ class CameraInfoFragment : Fragment() {
         }.apply {
             items = ui_camera_preview.camera?.getProperties(facing) ?: arrayListOf()
         }
-
-        focused.onPropertyChanged { sender, propertyId ->
-            try {
-                if (focused.get()) {
-                    ui_camera_preview.start()
-                    viewModel.cameraAvailable.set(ui_camera_preview.cameraAvailable)
-                } else {
-                    ui_camera_preview.stop()
-                }
-            } catch (e: Exception) {
-                Timber.e(e)
-            }
-        }
     }
 
     override fun onResume() {
         super.onResume()
-        Timber.d("CameraInfoFragment onResume")
-        ui_camera_preview.start()
-        if (focused.get()) viewModel.cameraAvailable.set(ui_camera_preview.cameraAvailable)
+        Timber.d("CameraInfoFragment($facing) onResume")
+        Timber.d("Focused($facing) = ${focused.get()}")
+
+        onFocusChanged()
+        focused.onPropertyChanged { sender, propertyId ->
+            onFocusChanged()
+        }
     }
 
     override fun onPause() {
         super.onPause()
-        Timber.d("CameraInfoFragment onPause")
+        Timber.d("CameraInfoFragment($facing) onPause")
         ui_camera_preview.stop()
+    }
+
+    private fun onFocusChanged() {
+        Timber.d("Focused($facing) = ${focused.get()}")
+        try {
+            if (focused.get()) {
+                ui_camera_preview.start()
+                viewModel.cameraAvailable.set(ui_camera_preview.cameraAvailable)
+            } else {
+                ui_camera_preview.stop()
+            }
+        } catch (e: Exception) {
+            Timber.e(e)
+        }
     }
 
 }

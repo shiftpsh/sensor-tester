@@ -4,6 +4,7 @@ import android.Manifest
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import com.shiftpsh.sensortester.R
 import com.shiftpsh.sensortester.camerainfo.CameraInfoFragment
 import com.shiftpsh.sensortester.camerainfo.Facing
@@ -12,6 +13,7 @@ import com.shiftpsh.sensortester.extension.onPropertyChanged
 import com.shiftpsh.sensortester.extension.requestPermission
 import com.shiftpsh.sensortester.sensorinfo.SensorInfoFragment
 import kotlinx.android.synthetic.main.activity_main.*
+import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun initialize(initialIndex: Int) {
+        Timber.d("MainActivity init")
         val tempAdapter = ViewPagerAdapter(supportFragmentManager)
 
         CameraInfoFragment().let {
@@ -40,11 +43,14 @@ class MainActivity : AppCompatActivity() {
             bundleRear.putString("facing", Facing.REAR.name)
             it.arguments = bundleRear
             tempAdapter += it
-            it.focused.set(viewModel.currentPage.get() == 0)
 
+            onFocusChanged(it, 0)
             viewModel.currentPage.onPropertyChanged { sender, propertyId ->
-                it.focused.set(viewModel.currentPage.get() == 0)
+                onFocusChanged(it, 0)
+                Timber.d("REAR / ${viewModel.currentPage.get()}: ${viewModel.currentPage.get() == 0}")
             }
+
+            Timber.d("REAR / ${viewModel.currentPage.get()}: ${viewModel.currentPage.get() == 0}")
         }
 
         CameraInfoFragment().let {
@@ -52,11 +58,14 @@ class MainActivity : AppCompatActivity() {
             bundleFront.putString("facing", Facing.FRONT.name)
             it.arguments = bundleFront
             tempAdapter += it
-            it.focused.set(viewModel.currentPage.get() == 1)
 
+            onFocusChanged(it, 1)
             viewModel.currentPage.onPropertyChanged { sender, propertyId ->
-                it.focused.set(viewModel.currentPage.get() == 1)
+                onFocusChanged(it, 1)
+                Timber.d("FRONT / ${viewModel.currentPage.get()}: ${viewModel.currentPage.get() == 1}")
             }
+
+            Timber.d("FRONT / ${viewModel.currentPage.get()}: ${viewModel.currentPage.get() == 1}")
         }
 
         SensorInfoFragment().let {
@@ -76,5 +85,9 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle?) {
         outState?.putInt("index", viewModel.currentPage.get())
         super.onSaveInstanceState(outState)
+    }
+
+    fun onFocusChanged(fragment: CameraInfoFragment, idx: Int) {
+        fragment.focused.set(viewModel.currentPage.get() == idx)
     }
 }

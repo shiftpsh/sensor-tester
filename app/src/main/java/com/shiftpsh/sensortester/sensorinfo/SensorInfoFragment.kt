@@ -20,12 +20,15 @@ import com.shiftpsh.sensortester.databinding.FragmentSensorInfoBinding
 import com.shiftpsh.sensortester.databinding.ItemSensorPropertiesBinding
 import com.shiftpsh.sensortester.sensorinfo.item.*
 import kotlinx.android.synthetic.main.fragment_sensor_info.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 class SensorInfoFragment : Fragment() {
 
     lateinit var viewModel: SensorInfoViewModel
     val observables: ArrayList<Pair<SensorType, ObservableField<SensorFormat>>> = arrayListOf()
     val sensorListeners: ArrayList<Pair<SensorType, SensorEventListener>> = arrayListOf()
+    private val executor: ExecutorService by lazy { Executors.newSingleThreadExecutor() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +88,9 @@ class SensorInfoFragment : Fragment() {
                                         }
 
                                         sensorListeners += property.type to listener
-                                        sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+                                        executor.execute {
+                                            sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+                                        }
                                     }
                                 } else {
                                     set(SensorProperty(property.type, "API ${property.type.apiLevel} needed", false))
@@ -108,18 +113,23 @@ class SensorInfoFragment : Fragment() {
     override fun onPause() {
         super.onPause()
 
-        val sensorManager = context!!.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        for (listener in sensorListeners) {
-            sensorManager.unregisterListener(listener.second)
+        executor.execute {
+            val sensorManager = context!!.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+            for (listener in sensorListeners) {
+                sensorManager.unregisterListener(listener.second)
+            }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        val sensorManager = context!!.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        for (listener in sensorListeners) {
-            val sensor = sensorManager.getDefaultSensor(listener.first.id)
-            sensorManager.registerListener(listener.second, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+
+        executor.execute {
+            val sensorManager = context!!.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+            for (listener in sensorListeners) {
+                val sensor = sensorManager.getDefaultSensor(listener.first.id)
+                sensorManager.registerListener(listener.second, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+            }
         }
     }
 }
