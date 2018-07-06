@@ -1,28 +1,6 @@
 package com.shiftpsh.sensortester.sensorinfo
 
-import android.content.Context
-import android.databinding.DataBindingUtil
-import android.databinding.Observable
-import android.databinding.ObservableField
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
-import android.os.Build
-import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import com.shiftpsh.sensortester.BaseRecyclerViewAdapter
-import com.shiftpsh.sensortester.R
-import com.shiftpsh.sensortester.databinding.FragmentSensorInfoBinding
-import com.shiftpsh.sensortester.databinding.ItemSensorPropertiesBinding
-import com.shiftpsh.sensortester.sensorinfo.item.*
-import kotlinx.android.synthetic.main.fragment_sensor_info.*
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-
+/*
 class SensorInfoFragment : Fragment() {
 
     lateinit var viewModel: SensorInfoViewModel
@@ -88,9 +66,7 @@ class SensorInfoFragment : Fragment() {
                                         }
 
                                         sensorListeners += property.type to listener
-                                        executor.execute {
-                                            sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL)
-                                        }
+                                        sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL)
                                     }
                                 } else {
                                     set(SensorProperty(property.type, "API ${property.type.apiLevel} needed", false))
@@ -133,3 +109,4 @@ class SensorInfoFragment : Fragment() {
         }
     }
 }
+        */

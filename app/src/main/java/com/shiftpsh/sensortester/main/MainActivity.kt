@@ -1,15 +1,31 @@
 package com.shiftpsh.sensortester.main
 
 import android.Manifest
+import android.content.Context
 import android.databinding.DataBindingUtil
+import android.databinding.Observable
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import com.shiftpsh.sensortester.BaseRecyclerViewAdapter
 import com.shiftpsh.sensortester.R
-import com.shiftpsh.sensortester.camerainfo.CameraInfoFragment
 import com.shiftpsh.sensortester.camerainfo.Facing
+import com.shiftpsh.sensortester.camerainfo.item.CameraProperty
+import com.shiftpsh.sensortester.camerainfo.item.CameraPropertyViewModel
+import com.shiftpsh.sensortester.databinding.ItemSensorPropertiesBinding
+import com.shiftpsh.sensortester.camerainfo.item.getProperties
 import com.shiftpsh.sensortester.databinding.ActivityMainBinding
+import com.shiftpsh.sensortester.databinding.ItemCameraPropertiesBinding
 import com.shiftpsh.sensortester.extension.requestPermission
-import com.shiftpsh.sensortester.sensorinfo.SensorInfoFragment
+import com.shiftpsh.sensortester.sensorinfo.item.*
+import io.reactivex.functions.BiFunction
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 
@@ -18,7 +34,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var viewModel: MainViewModel
     var lastPage = 0
 
-    private val cameraInfoFragments = ArrayList<CameraInfoFragment>()
+    val sensorListeners: ArrayList<Pair<SensorType, SensorEventListener>> = arrayListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,8 +47,6 @@ class MainActivity : AppCompatActivity() {
         val initialIndex = savedInstanceState?.getInt("index") ?: 0
         lastPage = initialIndex
 
-        cameraInfoFragments.removeAll(cameraInfoFragments)
-
         setSupportActionBar(ui_toolbar)
         requestPermission(Manifest.permission.CAMERA) { initialize(initialIndex) }
         lifecycle.addObserver(viewModel)
@@ -40,59 +54,99 @@ class MainActivity : AppCompatActivity() {
 
     fun initialize(initialIndex: Int) {
         Timber.d("MainActivity init")
-        val tempAdapter = ViewPagerAdapter(supportFragmentManager)
-
-        CameraInfoFragment().let { fragment ->
-            val bundleRear = Bundle()
-            bundleRear.putString("facing", Facing.REAR.name)
-            fragment.arguments = bundleRear
-            tempAdapter += fragment
-            cameraInfoFragments += fragment
-
-            onFocusChanged(fragment, 0)
-        }
-
-        CameraInfoFragment().let { fragment ->
-            val bundleFront = Bundle()
-            bundleFront.putString("facing", Facing.FRONT.name)
-            fragment.arguments = bundleFront
-            tempAdapter += fragment
-            cameraInfoFragments += fragment
-
-            onFocusChanged(fragment, 1)
-        }
-
-        SensorInfoFragment().let {
-            tempAdapter += it
-        }
-
-        ui_fragment_container.offscreenPageLimit = 3
-        ui_fragment_container.adapter = tempAdapter
-
-        // https://stackoverflow.com/questions/19316729/android-viewpager-setcurrentitem-not-working-after-onresume
-        ui_fragment_container.post {
-            ui_fragment_container.setCurrentItem(initialIndex, false)
-            for (i in cameraInfoFragments.indices) {
-                onFocusChanged(cameraInfoFragments[i], i)
-            }
-            viewModel.onCurrentPageChanged(lastPage)
-        }
 
         viewModel.currentPageFlowable.subscribe {
             lastPage = it
+        }
 
-            for (i in cameraInfoFragments.indices) {
-                onFocusChanged(cameraInfoFragments[i], i)
+        viewModel.stateFlowable.subscribe { (isCurrentTypeCamera, facing) ->
+            if (isCurrentTypeCamera) {
+                viewModel.onCameraAvailiabilityChanged(false)
+                ui_camera_preview.stop()
+                ui_camera_preview.start(facing) {
+                    ui_properties.swapAdapter(
+                            object : BaseRecyclerViewAdapter<CameraProperty, CameraPropertyViewModel>() {
+                                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder<CameraProperty, CameraPropertyViewModel> {
+                                    val itemView = LayoutInflater.from(this@MainActivity)
+                                            .inflate(R.layout.item_camera_properties, parent, false)
+
+                                    val viewModel = CameraPropertyViewModel()
+
+                                    val binding = ItemCameraPropertiesBinding.bind(itemView)
+                                    binding.vm = viewModel
+
+                                    return ItemViewHolder(itemView, binding, viewModel)
+                                }
+                            }.apply {
+                                items = it.getProperties(facing)
+                            }
+                            , true)
+
+                    viewModel.onCameraAvailiabilityChanged(true)
+                }
+            } else {
+                val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+
+                object : BaseRecyclerViewAdapter<SensorProperty, SensorPropertyViewModel>() {
+                    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder<SensorProperty, SensorPropertyViewModel> {
+                        val itemView = LayoutInflater.from(this@MainActivity)
+                                .inflate(R.layout.item_sensor_properties, parent, false)
+
+                        val viewModel = SensorPropertyViewModel()
+                        val binding = ItemSensorPropertiesBinding.bind(itemView)
+                        binding.vm = viewModel
+
+                        // TODO cleanup dirty code
+                        with(viewModel.property) {
+                            val x = object : Observable.OnPropertyChangedCallback() {
+                                override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                                    val apiVersion = Build.VERSION.SDK_INT
+                                    val property = get()!!
+                                    if (get()?.type != SensorType.NULL) {
+                                        removeOnPropertyChangedCallback(this)
+
+                                        if (property.type.apiLevel <= apiVersion) {
+                                            val sensor = sensorManager.getDefaultSensor(property.type.id)
+                                            if (sensor == null) {
+                                                set(SensorProperty(property.type, "unsupported", false))
+                                            } else {
+                                                val listener = object : SensorEventListener {
+                                                    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
+                                                    }
+
+                                                    override fun onSensorChanged(p0: SensorEvent?) {
+                                                        p0 ?: return
+                                                        set(SensorProperty(property.type, SensorFormat.format(p0, property.type.type, property.type.unit), true))
+                                                    }
+                                                }
+
+                                                sensorListeners += property.type to listener
+                                                sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+                                            }
+                                        } else {
+                                            set(SensorProperty(property.type, "API ${property.type.apiLevel} needed", false))
+                                        }
+                                    }
+                                }
+                            }
+                            addOnPropertyChangedCallback(x)
+                        }
+
+                        return ItemViewHolder(itemView, binding, viewModel)
+                    }
+                }.let {
+                    it.items = getSensorProperties()
+                    ui_properties.adapter = it
+                }
             }
         }
+
+        viewModel.onCurrentPageChanged(initialIndex)
+
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
         outState?.putInt("index", lastPage)
         super.onSaveInstanceState(outState)
-    }
-
-    fun onFocusChanged(fragment: CameraInfoFragment, idx: Int) {
-        fragment.onFocusChanged(lastPage == idx)
     }
 }
