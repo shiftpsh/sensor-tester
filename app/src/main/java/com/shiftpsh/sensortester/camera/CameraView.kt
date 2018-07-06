@@ -32,11 +32,12 @@ class CameraView(context: Context, attrs: AttributeSet) : SurfaceView(context, a
         holder.addCallback(this)
     }
 
-    fun start() = executor.execute {
+    fun start(callback: () -> Unit) = executor.execute {
         Timber.d("CameraView($facing) start")
         try {
             camera = Camera.open(facing.camera)
             cameraAvailable = initialize() || cameraAvailable
+            callback()
         } catch (e: Exception) {
             e.printStackTrace()
             cameraAvailable = false

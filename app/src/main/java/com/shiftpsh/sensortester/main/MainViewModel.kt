@@ -5,10 +5,13 @@ import android.support.design.widget.BottomNavigationView
 import android.support.v4.view.ViewPager
 import com.shiftpsh.sensortester.BaseViewModel
 import com.shiftpsh.sensortester.R
-import com.shiftpsh.sensortester.extension.onPropertyChanged
+import io.reactivex.Flowable
+import io.reactivex.processors.PublishProcessor
 
 class MainViewModel : BaseViewModel() {
 
+    private val currentPageProcessor: PublishProcessor<Int> = PublishProcessor.create()
+    internal val currentPageFlowable: Flowable<Int> = currentPageProcessor
     val currentPage = ObservableInt(0)
     val currentMenuItem = ObservableInt(R.id.item_camera_rear)
 
@@ -19,9 +22,6 @@ class MainViewModel : BaseViewModel() {
     )
 
     override fun onCreate() {
-        currentPage.onPropertyChanged { sender, propertyId ->
-            currentMenuItem.set(menu[currentPage.get()])
-        }
     }
 
     override fun onResume() {
@@ -33,9 +33,16 @@ class MainViewModel : BaseViewModel() {
     override fun onDestroy() {
     }
 
+    fun onCurrentPageChanged(page: Int) {
+        currentPageProcessor.onNext(page)
+
+        currentPage.set(page)
+        currentMenuItem.set(menu[page])
+    }
+
     val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         val index = menu.indexOf(item.itemId)
-        currentPage.set(index)
+        onCurrentPageChanged(index)
         true
     }
 
@@ -47,7 +54,7 @@ class MainViewModel : BaseViewModel() {
         }
 
         override fun onPageSelected(position: Int) {
-            currentPage.set(position)
+            onCurrentPageChanged(position)
         }
     }
 }

@@ -16,12 +16,14 @@ import com.shiftpsh.sensortester.camerainfo.item.getProperties
 import com.shiftpsh.sensortester.databinding.FragmentCameraInfoBinding
 import com.shiftpsh.sensortester.databinding.ItemCameraPropertiesBinding
 import com.shiftpsh.sensortester.extension.onPropertyChanged
+import io.reactivex.Flowable
+import io.reactivex.processors.PublishProcessor
 import kotlinx.android.synthetic.main.fragment_camera_info.*
 import timber.log.Timber
 
 class CameraInfoFragment : Fragment() {
 
-    lateinit var viewModel: CameraInfoViewModel
+    val viewModel = CameraInfoViewModel()
     lateinit var facing: Facing
 
     val focused = ObservableBoolean(false)
@@ -36,8 +38,6 @@ class CameraInfoFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        viewModel = CameraInfoViewModel()
-
         val inflation = DataBindingUtil.inflate<FragmentCameraInfoBinding>(
                 inflater, R.layout.fragment_camera_info, container, false
         ).apply {
@@ -52,6 +52,25 @@ class CameraInfoFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
 
         lifecycle.addObserver(viewModel)
+
+        viewModel.cameraAvailableFlowable.subscribe {
+            // ?
+        }
+
+        viewModel.focusedFlowable.subscribe {
+            Timber.d("Focused($facing) = ${focused.get()}")
+            try {
+                if (focused.get()) {
+                    ui_camera_preview.start {
+                        viewModel.onSetCameraAvailableState(true)
+                    }
+                } else {
+                    ui_camera_preview.stop()
+                }
+            } catch (e: Exception) {
+                Timber.e(e)
+            }
+        }
 
         // TODO MVVM
         viewModel.cameraFacing.set(facing)
@@ -78,11 +97,6 @@ class CameraInfoFragment : Fragment() {
         super.onResume()
         Timber.d("CameraInfoFragment($facing) onResume")
         Timber.d("Focused($facing) = ${focused.get()}")
-
-        onFocusChanged()
-        focused.onPropertyChanged { sender, propertyId ->
-            onFocusChanged()
-        }
     }
 
     override fun onPause() {
@@ -91,18 +105,9 @@ class CameraInfoFragment : Fragment() {
         ui_camera_preview.stop()
     }
 
-    private fun onFocusChanged() {
-        Timber.d("Focused($facing) = ${focused.get()}")
-        try {
-            if (focused.get()) {
-                ui_camera_preview.start()
-                viewModel.cameraAvailable.set(ui_camera_preview.cameraAvailable)
-            } else {
-                ui_camera_preview.stop()
-            }
-        } catch (e: Exception) {
-            Timber.e(e)
-        }
+    fun onFocusChanged(b: Boolean) {
+        viewModel.onFocusChanged(b)
+        focused.set(b)
     }
 
 }

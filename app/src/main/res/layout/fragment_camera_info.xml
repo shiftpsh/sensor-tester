@@ -126,6 +126,7 @@
                     android:clipToPadding="false"
                     android:orientation="vertical"
                     android:padding="16dp"
+                    android:visibility="@{vm.cameraAvailable ? View.VISIBLE : View.INVISIBLE}"
                     app:layoutManager="android.support.v7.widget.GridLayoutManager"
                     app:spanCount="2">
 

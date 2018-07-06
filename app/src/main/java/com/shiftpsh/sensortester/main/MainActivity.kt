@@ -4,12 +4,10 @@ import android.Manifest
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import com.shiftpsh.sensortester.R
 import com.shiftpsh.sensortester.camerainfo.CameraInfoFragment
 import com.shiftpsh.sensortester.camerainfo.Facing
 import com.shiftpsh.sensortester.databinding.ActivityMainBinding
-import com.shiftpsh.sensortester.extension.onPropertyChanged
 import com.shiftpsh.sensortester.extension.requestPermission
 import com.shiftpsh.sensortester.sensorinfo.SensorInfoFragment
 import kotlinx.android.synthetic.main.activity_main.*
@@ -18,6 +16,9 @@ import timber.log.Timber
 class MainActivity : AppCompatActivity() {
 
     lateinit var viewModel: MainViewModel
+    var lastPage = 0
+
+    private val cameraInfoFragments = ArrayList<CameraInfoFragment>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +29,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         val initialIndex = savedInstanceState?.getInt("index") ?: 0
+        lastPage = initialIndex
+
+        cameraInfoFragments.removeAll(cameraInfoFragments)
 
         setSupportActionBar(ui_toolbar)
         requestPermission(Manifest.permission.CAMERA) { initialize(initialIndex) }
@@ -38,34 +42,24 @@ class MainActivity : AppCompatActivity() {
         Timber.d("MainActivity init")
         val tempAdapter = ViewPagerAdapter(supportFragmentManager)
 
-        CameraInfoFragment().let {
+        CameraInfoFragment().let { fragment ->
             val bundleRear = Bundle()
             bundleRear.putString("facing", Facing.REAR.name)
-            it.arguments = bundleRear
-            tempAdapter += it
+            fragment.arguments = bundleRear
+            tempAdapter += fragment
+            cameraInfoFragments += fragment
 
-            onFocusChanged(it, 0)
-            viewModel.currentPage.onPropertyChanged { sender, propertyId ->
-                onFocusChanged(it, 0)
-                Timber.d("REAR / ${viewModel.currentPage.get()}: ${viewModel.currentPage.get() == 0}")
-            }
-
-            Timber.d("REAR / ${viewModel.currentPage.get()}: ${viewModel.currentPage.get() == 0}")
+            onFocusChanged(fragment, 0)
         }
 
-        CameraInfoFragment().let {
+        CameraInfoFragment().let { fragment ->
             val bundleFront = Bundle()
             bundleFront.putString("facing", Facing.FRONT.name)
-            it.arguments = bundleFront
-            tempAdapter += it
+            fragment.arguments = bundleFront
+            tempAdapter += fragment
+            cameraInfoFragments += fragment
 
-            onFocusChanged(it, 1)
-            viewModel.currentPage.onPropertyChanged { sender, propertyId ->
-                onFocusChanged(it, 1)
-                Timber.d("FRONT / ${viewModel.currentPage.get()}: ${viewModel.currentPage.get() == 1}")
-            }
-
-            Timber.d("FRONT / ${viewModel.currentPage.get()}: ${viewModel.currentPage.get() == 1}")
+            onFocusChanged(fragment, 1)
         }
 
         SensorInfoFragment().let {
@@ -78,16 +72,27 @@ class MainActivity : AppCompatActivity() {
         // https://stackoverflow.com/questions/19316729/android-viewpager-setcurrentitem-not-working-after-onresume
         ui_fragment_container.post {
             ui_fragment_container.setCurrentItem(initialIndex, false)
+            for (i in cameraInfoFragments.indices) {
+                onFocusChanged(cameraInfoFragments[i], i)
+            }
+            viewModel.onCurrentPageChanged(lastPage)
         }
 
+        viewModel.currentPageFlowable.subscribe {
+            lastPage = it
+
+            for (i in cameraInfoFragments.indices) {
+                onFocusChanged(cameraInfoFragments[i], i)
+            }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
-        outState?.putInt("index", viewModel.currentPage.get())
+        outState?.putInt("index", lastPage)
         super.onSaveInstanceState(outState)
     }
 
     fun onFocusChanged(fragment: CameraInfoFragment, idx: Int) {
-        fragment.focused.set(viewModel.currentPage.get() == idx)
+        fragment.onFocusChanged(lastPage == idx)
     }
 }
