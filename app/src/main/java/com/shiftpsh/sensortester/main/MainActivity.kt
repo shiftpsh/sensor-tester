@@ -17,14 +17,17 @@ import com.shiftpsh.sensortester.BaseRecyclerViewAdapter
 import com.shiftpsh.sensortester.R
 import com.shiftpsh.sensortester.camerainfo.item.CameraProperty
 import com.shiftpsh.sensortester.camerainfo.item.CameraPropertyViewModel
+import com.shiftpsh.sensortester.camerainfo.item.DefaultCameraProperty
 import com.shiftpsh.sensortester.camerainfo.item.getProperties
 import com.shiftpsh.sensortester.databinding.ActivityMainBinding
 import com.shiftpsh.sensortester.databinding.ItemCameraPropertiesBinding
 import com.shiftpsh.sensortester.databinding.ItemSensorPropertiesBinding
+import com.shiftpsh.sensortester.extension.makeFloat
 import com.shiftpsh.sensortester.extension.requestPermission
 import com.shiftpsh.sensortester.sensorinfo.item.*
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
+import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
@@ -43,8 +46,51 @@ class MainActivity : AppCompatActivity() {
             val binding = ItemCameraPropertiesBinding.bind(itemView)
             binding.vm = viewModel
 
+            viewModel.cameraPropertiesFlowable.subscribe {
+                with(ui_camera_preview.camera?.parameters ?: return@subscribe) {
+                    when (it.first) {
+                        // TODO add indicators; make preview size changeable
+                        DefaultCameraProperty.PREVIEW_FPS -> {
+                            val value = it.second.split("..").map { it.makeFloat() }
+                            setPreviewFpsRange((value[0] * 1000).toInt(), (value[1] * 1000).toInt())
+                        }
+                        DefaultCameraProperty.SIZES_PREVIEW -> {
+                            val value = it.second.split("×").map { it.makeFloat().roundToInt() }
+                            this@MainActivity.viewModel.aspectRatio.set("${value[0]}:${value[1]}")
+                            ui_camera_preview.setPreviewSize(value[0], value[1])
+                        }
+                        DefaultCameraProperty.SCENE_MODES -> {
+                            sceneMode = it.second
+                        }
+                        DefaultCameraProperty.WHITEBALANCES -> {
+                            whiteBalance = it.second
+                        }
+                        DefaultCameraProperty.FLASH_MODES -> {
+                            flashMode = it.second
+                        }
+                        DefaultCameraProperty.ANTIBANDING -> {
+                            antibanding = it.second
+                        }
+                        DefaultCameraProperty.EFFECTS_COLOR -> {
+                            colorEffect = it.second
+                        }
+                        DefaultCameraProperty.ZOOM_RATIO -> {
+                            val value = it.second.makeFloat() * 100
+                            zoom = zoomRatios.indexOf(value.roundToInt())
+                        }
+                    }
+
+                    setParameters(this)
+                }
+                notifyDataSetChanged()
+            }
+
             return ItemViewHolder(itemView, binding, viewModel)
         }
+    }
+
+    fun setParameters(parameters: android.hardware.Camera.Parameters) {
+        ui_camera_preview.camera?.parameters = parameters
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

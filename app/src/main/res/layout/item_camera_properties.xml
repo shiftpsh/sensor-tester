@@ -7,6 +7,8 @@
 
         <import type="android.view.View" />
 
+        <import type="com.shiftpsh.sensortester.R" />
+
         <import type="com.shiftpsh.sensortester.camerainfo.item.CameraPropertyViewModel" />
 
         <variable
@@ -17,8 +19,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="144dp"
-        android:padding="8dp"
-        android:onClick="@{vm::onClick}">
+        android:onClick="@{vm::onClick}"
+        android:padding="8dp">
 
         <ImageView
             android:id="@+id/ui_icon"
@@ -27,7 +29,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_margin="4dp"
-            app:imageResource="@{vm.property.icon}"
+            app:imageResource="@{vm.property.property.icon}"
             tools:src="@drawable/ic_rotate_90_degrees_ccw_black_24dp" />
 
         <android.support.v7.widget.AppCompatImageView
@@ -46,11 +48,11 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="4dp"
             android:layout_marginRight="4dp"
-            android:layout_toRightOf="@+id/ui_icon"
             android:layout_toLeftOf="@+id/ui_more"
+            android:layout_toRightOf="@+id/ui_icon"
             android:gravity="center_vertical"
             android:minHeight="32dp"
-            android:text="@{vm.property.key}"
+            android:text="@{vm.property.property.key}"
             android:textColor="@android:color/black"
             tools:text="Camera Rotation" />
 
@@ -65,7 +67,7 @@
             android:gravity="bottom|right"
             android:maxLines="1"
             android:text="@{vm.property.value}"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@{context.getResources().getColor(vm.property.modified ? R.color.colorSecondary : R.color.colorPrimary)}"
             app:autoSizeMaxTextSize="36sp"
             app:autoSizeMinTextSize="12sp"
             app:autoSizeStepGranularity="2sp"
@@ -79,10 +81,10 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
             android:layout_margin="8dp"
-            android:gravity="center_vertical"
-            android:text="@{vm.property.description}"
             android:ellipsize="end"
+            android:gravity="center_vertical"
             android:singleLine="true"
+            android:text="@{vm.property.description}"
             tools:text="Camera Rotation" />
     </RelativeLayout>
 </layout>

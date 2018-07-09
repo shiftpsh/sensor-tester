@@ -31,7 +31,11 @@ class CameraView(context: Context, attrs: AttributeSet) : SurfaceView(context, a
             camera = Camera.open(facing.camera)
             cameraAvailable = initialize() || cameraAvailable
             Handler(Looper.getMainLooper()).post {
-                success(camera!!)
+                try {
+                    success(camera!!)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -46,6 +50,20 @@ class CameraView(context: Context, attrs: AttributeSet) : SurfaceView(context, a
         camera?.stopPreview()
         camera?.release()
         camera = null
+    }
+
+    fun setPreviewSize(w: Int, h: Int) = executor.execute {
+        try {
+            camera?.stopPreview()
+            camera?.parameters?.apply {
+                setPreviewSize(w, h)
+                camera?.parameters = this
+            }
+            camera?.startPreview()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            camera?.startPreview()
+        }
     }
 
     private fun initialize(): Boolean {

@@ -7,3 +7,5 @@ fun Int.formatNumber(singular: String, plural: String): String {
         "$this $plural"
     }
 }
+
+fun String.makeFloat() = replace(Regex("[^\\d.]"), "").toFloat()
