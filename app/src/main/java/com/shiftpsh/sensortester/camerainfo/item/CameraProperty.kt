@@ -12,20 +12,18 @@ import com.shiftpsh.sensortester.extension.examples
 import com.shiftpsh.sensortester.extension.formatNumber
 import com.shiftpsh.sensortester.extension.formatSize
 
-class CameraProperty(val key: String, val icon: Int, val value: String, val description: String = "", val details: List<String>? = listOf()) {
-    constructor(property: DefaultCameraProperty, value: String, description: String = "", details: List<String>? = listOf())
-            : this(property.key, property.icon, value, description, details)
+class CameraProperty(val property: DefaultCameraProperty, val value: String, val description: String = "", val details: List<String>? = listOf()) {
 
-    fun click(context: Context) {
+    fun click(context: Context, viewModel: CameraPropertyViewModel) {
         if (details == null) return
         if (details.isEmpty()) return
 
         val builder = AlertDialog.Builder(context)
         builder.setAdapter(ArrayAdapter(context, android.R.layout.simple_list_item_1, details), DialogInterface.OnClickListener { dialogInterface, i ->
-
+            viewModel.onCameraPropertiesChange(details[i])
         })
-        builder.setTitle(key)
-        builder.setIcon(icon)
+        builder.setTitle(property.key)
+        builder.setIcon(property.icon)
         builder.setCancelable(true)
 
         builder.create().show()

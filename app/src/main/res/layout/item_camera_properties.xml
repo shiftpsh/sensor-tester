@@ -27,7 +27,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_margin="4dp"
-            app:imageResource="@{vm.property.icon}"
+            app:imageResource="@{vm.property.property.icon}"
             tools:src="@drawable/ic_rotate_90_degrees_ccw_black_24dp" />
 
         <android.support.v7.widget.AppCompatImageView
@@ -50,7 +50,7 @@
             android:layout_toLeftOf="@+id/ui_more"
             android:gravity="center_vertical"
             android:minHeight="32dp"
-            android:text="@{vm.property.key}"
+            android:text="@{vm.property.property.key}"
             android:textColor="@android:color/black"
             tools:text="Camera Rotation" />
 

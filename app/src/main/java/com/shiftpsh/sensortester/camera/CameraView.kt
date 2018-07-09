@@ -31,7 +31,11 @@ class CameraView(context: Context, attrs: AttributeSet) : SurfaceView(context, a
             camera = Camera.open(facing.camera)
             cameraAvailable = initialize() || cameraAvailable
             Handler(Looper.getMainLooper()).post {
-                success(camera!!)
+                try {
+                    success(camera!!)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()
