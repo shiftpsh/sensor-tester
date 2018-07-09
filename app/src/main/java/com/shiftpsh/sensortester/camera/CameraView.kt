@@ -25,18 +25,19 @@ class CameraView(context: Context, attrs: AttributeSet) : SurfaceView(context, a
         holder.addCallback(this)
     }
 
-    fun start(facing: Facing, callback: (Camera) -> Unit) = executor.execute {
+    fun start(facing: Facing, success: (Camera) -> Unit, callback: () -> Unit) = executor.execute {
         Timber.d("CameraView($facing) start")
         try {
             camera = Camera.open(facing.camera)
             cameraAvailable = initialize() || cameraAvailable
             Handler(Looper.getMainLooper()).post {
-                callback(camera!!)
+                success(camera!!)
             }
         } catch (e: Exception) {
             e.printStackTrace()
             cameraAvailable = false
         }
+        callback()
     }
 
     fun stop() = executor.execute {
@@ -80,14 +81,6 @@ class CameraView(context: Context, attrs: AttributeSet) : SurfaceView(context, a
 
     override fun surfaceDestroyed(p0: SurfaceHolder?) = executor.execute {
         Timber.d("CameraView($facing) surfaceDestroyed")
-
-        try {
-            camera?.stopPreview()
-            camera?.release()
-            camera = null
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        camera = null
+        stop()
     }
 }

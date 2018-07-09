@@ -12,20 +12,17 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import com.shiftpsh.sensortester.BaseRecyclerViewAdapter
 import com.shiftpsh.sensortester.R
-import com.shiftpsh.sensortester.camerainfo.Facing
 import com.shiftpsh.sensortester.camerainfo.item.CameraProperty
 import com.shiftpsh.sensortester.camerainfo.item.CameraPropertyViewModel
-import com.shiftpsh.sensortester.databinding.ItemSensorPropertiesBinding
 import com.shiftpsh.sensortester.camerainfo.item.getProperties
 import com.shiftpsh.sensortester.databinding.ActivityMainBinding
 import com.shiftpsh.sensortester.databinding.ItemCameraPropertiesBinding
+import com.shiftpsh.sensortester.databinding.ItemSensorPropertiesBinding
 import com.shiftpsh.sensortester.extension.requestPermission
 import com.shiftpsh.sensortester.sensorinfo.item.*
-import io.reactivex.functions.BiFunction
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 
@@ -35,6 +32,20 @@ class MainActivity : AppCompatActivity() {
     var lastPage = 0
 
     val sensorListeners: ArrayList<Pair<SensorType, SensorEventListener>> = arrayListOf()
+
+    val cameraAdapter = object : BaseRecyclerViewAdapter<CameraProperty, CameraPropertyViewModel>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder<CameraProperty, CameraPropertyViewModel> {
+            val itemView = LayoutInflater.from(this@MainActivity)
+                    .inflate(R.layout.item_camera_properties, parent, false)
+
+            val viewModel = CameraPropertyViewModel()
+
+            val binding = ItemCameraPropertiesBinding.bind(itemView)
+            binding.vm = viewModel
+
+            return ItemViewHolder(itemView, binding, viewModel)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,28 +72,18 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.stateFlowable.subscribe { (isCurrentTypeCamera, facing) ->
             if (isCurrentTypeCamera) {
+                viewModel.onCameraWaitingStateChanged(true)
                 viewModel.onCameraAvailiabilityChanged(false)
                 ui_camera_preview.stop()
-                ui_camera_preview.start(facing) {
-                    ui_properties.adapter =
-                            object : BaseRecyclerViewAdapter<CameraProperty, CameraPropertyViewModel>() {
-                                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder<CameraProperty, CameraPropertyViewModel> {
-                                    val itemView = LayoutInflater.from(this@MainActivity)
-                                            .inflate(R.layout.item_camera_properties, parent, false)
 
-                                    val viewModel = CameraPropertyViewModel()
-
-                                    val binding = ItemCameraPropertiesBinding.bind(itemView)
-                                    binding.vm = viewModel
-
-                                    return ItemViewHolder(itemView, binding, viewModel)
-                                }
-                            }.apply {
-                                items = it.getProperties(facing)
-                            }
-
+                ui_camera_preview.start(facing, {
+                    ui_properties.adapter = cameraAdapter.apply {
+                        items = it.getProperties(facing)
+                    }
                     viewModel.onCameraAvailiabilityChanged(true)
-                }
+                }, {
+                    viewModel.onCameraWaitingStateChanged(false)
+                })
             } else {
                 val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
@@ -140,12 +141,24 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.onCurrentPageChanged(initialIndex)
-
+        viewModel.onCurrentPageChanged(initialIndex, true)
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
         outState?.putInt("index", lastPage)
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (lastPage < 2) {
+            ui_camera_preview.stop()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        viewModel.onCurrentPageChanged(lastPage, true)
     }
 }

@@ -4,7 +4,6 @@ import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
 import android.databinding.ObservableInt
 import android.support.design.widget.BottomNavigationView
-import android.support.v4.view.ViewPager
 import com.shiftpsh.sensortester.BaseViewModel
 import com.shiftpsh.sensortester.R
 import com.shiftpsh.sensortester.camerainfo.Facing
@@ -21,6 +20,7 @@ class MainViewModel : BaseViewModel() {
     val isCurrentTypeCamera = ObservableBoolean(true)
     val currentMenuItem = ObservableInt(R.id.item_camera_rear)
     val cameraAvailable = ObservableBoolean(false)
+    val waitingCamera = ObservableBoolean(true)
     val cameraFacing = ObservableField<Facing>(Facing.FRONT)
 
     private val cameraAvailableProcessor: PublishProcessor<Boolean> = PublishProcessor.create()
@@ -49,14 +49,18 @@ class MainViewModel : BaseViewModel() {
     override fun onDestroy() {
     }
 
+    fun onCameraWaitingStateChanged(waiting: Boolean) {
+        waitingCamera.set(waiting)
+    }
+
     fun onCameraAvailiabilityChanged(available: Boolean) {
         cameraAvailable.set(available)
         cameraAvailableProcessor.onNext(available)
     }
 
-    fun onCurrentPageChanged(page: Int) {
-        Timber.d("onCurrentPageChanged: $page")
-        if (page != lastPage) {
+    fun onCurrentPageChanged(page: Int, force: Boolean = false) {
+        if (lastPage != page || force) {
+            Timber.d("onCurrentPageChanged: $page")
             currentPageProcessor.onNext(page)
 
             currentPage.set(page)

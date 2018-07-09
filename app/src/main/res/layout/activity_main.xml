@@ -55,7 +55,7 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_gravity="center"
-                    android:visibility="@{vm.cameraAvailable ? View.INVISIBLE : View.VISIBLE}"
+                    android:visibility="@{vm.cameraAvailable || vm.waitingCamera ? View.INVISIBLE : View.VISIBLE}"
                     app:srcCompat="@drawable/ic_unsupported_black_24dp"
                     app:tint="@android:color/darker_gray" />
             </FrameLayout>
@@ -102,7 +102,7 @@
                     android:layout_marginRight="8dp"
                     android:gravity="center_vertical|right"
                     android:minHeight="32dp"
-                    android:text="@{vm.cameraAvailable ? `Supported` : `Unsupported`}"
+                    android:text="@{vm.cameraAvailable ? `Supported` : vm.waitingCamera ? `Waiting camera...` : `Unsupported`}"
                     android:textColor="@android:color/white"
                     android:textStyle="bold"
                     tools:text="Supported" />
@@ -122,7 +122,7 @@
                     android:alpha="0.5"
                     android:gravity="center_horizontal"
                     android:orientation="vertical"
-                    android:visibility="@{vm.cameraAvailable || !vm.isCurrentTypeCamera ? View.GONE : View.VISIBLE}">
+                    android:visibility="@{vm.cameraAvailable || !vm.isCurrentTypeCamera || vm.waitingCamera ? View.GONE : View.VISIBLE}">
 
                     <android.support.v7.widget.AppCompatImageView
                         android:layout_width="64dp"
