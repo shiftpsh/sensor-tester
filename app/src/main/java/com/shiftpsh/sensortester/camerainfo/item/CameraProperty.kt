@@ -65,7 +65,7 @@ fun Camera.getProperties(facing: Facing): ArrayList<CameraProperty> {
             CameraProperty(
                     DefaultCameraProperty.PREVIEW_FPS,
                     if (it.isNotEmpty()) it.maxBy { it[1] }!!
-                            .let { "%.2f fps".format(it[1] / 1000.0f) } else "",
+                            .let { "up to %.2f fps".format(it[1] / 1000.0f) } else "",
                     it.formatSize("mode", "modes"),
                     false,
                     it.map { "%.2f .. %.2f fps".format(it[0] / 1000.0f, it[1] / 1000.0f) }
@@ -89,7 +89,7 @@ fun Camera.getProperties(facing: Facing): ArrayList<CameraProperty> {
         temp += supportedPreviewSizes.let {
             CameraProperty(
                     DefaultCameraProperty.SIZES_PREVIEW,
-                    if (it != null) if (it.isNotEmpty()) it.maxBy { it.height * it.width }.let { "${it!!.width} × ${it.height}" } else "" else "",
+                    if (it != null) if (it.isNotEmpty()) it.maxBy { it.height * it.width }.let { "up to ${it!!.width} × ${it.height}" } else "" else "",
                     it.formatSize("size", "sizes"),
                     details = it?.map { "${it!!.width} × ${it.height}" }
             )
@@ -98,7 +98,7 @@ fun Camera.getProperties(facing: Facing): ArrayList<CameraProperty> {
         temp += supportedPictureSizes.let {
             CameraProperty(
                     DefaultCameraProperty.SIZES_PICTURE,
-                    if (it != null) if (it.isNotEmpty()) it.maxBy { it.height * it.width }.let { "${it!!.width} × ${it.height}" } else "" else "",
+                    if (it != null) if (it.isNotEmpty()) it.maxBy { it.height * it.width }.let { "up to ${it!!.width} × ${it.height}" } else "" else "",
                     it.formatSize("size", "sizes"),
                     details = it?.map { "${it!!.width} × ${it.height}" }
             )
@@ -107,7 +107,7 @@ fun Camera.getProperties(facing: Facing): ArrayList<CameraProperty> {
         temp += supportedVideoSizes.let {
             CameraProperty(
                     DefaultCameraProperty.SIZES_VIDEO,
-                    if (it != null) if (it.isNotEmpty()) it.maxBy { it.height * it.width }.let { "${it!!.width} × ${it.height}" } else "" else "",
+                    if (it != null) if (it.isNotEmpty()) it.maxBy { it.height * it.width }.let { "up to ${it!!.width} × ${it.height}" } else "" else "",
                     it.formatSize("size", "sizes"),
                     details = it?.map { "${it!!.width} × ${it.height}" }
             )
@@ -173,7 +173,7 @@ fun Camera.getProperties(facing: Facing): ArrayList<CameraProperty> {
         temp += zoomRatios.let {
             CameraProperty(
                     DefaultCameraProperty.ZOOM_RATIO,
-                    if (it != null) if (it.isNotEmpty()) "×%.2f".format(it.max()!! / 100.0f) else "" else "",
+                    if (it != null) if (it.isNotEmpty()) "up to ×%.2f".format(it.max()!! / 100.0f) else "" else "",
                     it.formatSize("step", "steps"),
                     false,
                     it?.map { "×%.2f".format(it / 100.0f) }
