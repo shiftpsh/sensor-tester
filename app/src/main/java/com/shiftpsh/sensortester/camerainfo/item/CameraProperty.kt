@@ -12,14 +12,14 @@ import com.shiftpsh.sensortester.extension.examples
 import com.shiftpsh.sensortester.extension.formatNumber
 import com.shiftpsh.sensortester.extension.formatSize
 
-class CameraProperty(val property: DefaultCameraProperty, val value: String, val description: String = "", val details: List<String>? = listOf()) {
+class CameraProperty(val property: DefaultCameraProperty, var value: String, val description: String = "", var modified: Boolean = false, val details: List<String>? = listOf()) {
 
     fun click(context: Context, viewModel: CameraPropertyViewModel) {
         if (details == null) return
         if (details.isEmpty()) return
 
         val builder = AlertDialog.Builder(context)
-        builder.setAdapter(ArrayAdapter(context, android.R.layout.simple_list_item_1, details), DialogInterface.OnClickListener { dialogInterface, i ->
+        builder.setAdapter(ArrayAdapter(context, android.R.layout.simple_list_item_1, details), { dialogInterface, i ->
             viewModel.onCameraPropertiesChange(details[i])
         })
         builder.setTitle(property.key)
@@ -67,6 +67,7 @@ fun Camera.getProperties(facing: Facing): ArrayList<CameraProperty> {
                     if (it.isNotEmpty()) it.maxBy { it[1] }!!
                             .let { "%.2f fps".format(it[1] / 1000.0f) } else "",
                     it.formatSize("mode", "modes"),
+                    false,
                     it.map { "%.2f .. %.2f fps".format(it[0] / 1000.0f, it[1] / 1000.0f) }
             )
         }
@@ -88,27 +89,27 @@ fun Camera.getProperties(facing: Facing): ArrayList<CameraProperty> {
         temp += supportedPreviewSizes.let {
             CameraProperty(
                     DefaultCameraProperty.SIZES_PREVIEW,
-                    if (it != null) if (it.isNotEmpty()) it.maxBy { it.height * it.width }.let { "${it!!.height} × ${it.width}" } else "" else "",
+                    if (it != null) if (it.isNotEmpty()) it.maxBy { it.height * it.width }.let { "${it!!.width} × ${it.height}" } else "" else "",
                     it.formatSize("size", "sizes"),
-                    details = it?.map { "${it!!.height} × ${it.width}" }
+                    details = it?.map { "${it!!.width} × ${it.height}" }
             )
         }
 
         temp += supportedPictureSizes.let {
             CameraProperty(
                     DefaultCameraProperty.SIZES_PICTURE,
-                    if (it != null) if (it.isNotEmpty()) it.maxBy { it.height * it.width }.let { "${it!!.height} × ${it.width}" } else "" else "",
+                    if (it != null) if (it.isNotEmpty()) it.maxBy { it.height * it.width }.let { "${it!!.width} × ${it.height}" } else "" else "",
                     it.formatSize("size", "sizes"),
-                    details = it?.map { "${it!!.height} × ${it.width}" }
+                    details = it?.map { "${it!!.width} × ${it.height}" }
             )
         }
 
         temp += supportedVideoSizes.let {
             CameraProperty(
                     DefaultCameraProperty.SIZES_VIDEO,
-                    if (it != null) if (it.isNotEmpty()) it.maxBy { it.height * it.width }.let { "${it!!.height} × ${it.width}" } else "" else "",
+                    if (it != null) if (it.isNotEmpty()) it.maxBy { it.height * it.width }.let { "${it!!.width} × ${it.height}" } else "" else "",
                     it.formatSize("size", "sizes"),
-                    details = it?.map { "${it!!.height} × ${it.width}" }
+                    details = it?.map { "${it!!.width} × ${it.height}" }
             )
         }
 
@@ -117,6 +118,7 @@ fun Camera.getProperties(facing: Facing): ArrayList<CameraProperty> {
                     DefaultCameraProperty.SCENE_MODES,
                     it.formatSize("mode", "modes"),
                     it.examples(),
+                    false,
                     it
             )
         }
@@ -126,6 +128,7 @@ fun Camera.getProperties(facing: Facing): ArrayList<CameraProperty> {
                     DefaultCameraProperty.WHITEBALANCES,
                     it.formatSize("mode", "modes"),
                     it.examples(),
+                    false,
                     it
             )
         }
@@ -135,6 +138,7 @@ fun Camera.getProperties(facing: Facing): ArrayList<CameraProperty> {
                     DefaultCameraProperty.FLASH_MODES,
                     it.formatSize("mode", "modes"),
                     it.examples(),
+                    false,
                     it
             )
         }
@@ -144,6 +148,7 @@ fun Camera.getProperties(facing: Facing): ArrayList<CameraProperty> {
                     DefaultCameraProperty.ANTIBANDING,
                     it.formatSize("mode", "modes"),
                     it.examples(),
+                    false,
                     it
             )
         }
@@ -153,6 +158,7 @@ fun Camera.getProperties(facing: Facing): ArrayList<CameraProperty> {
                     DefaultCameraProperty.EFFECTS_COLOR,
                     it.formatSize("effect", "effects"),
                     it.examples(),
+                    false,
                     it
             )
         }
@@ -169,6 +175,7 @@ fun Camera.getProperties(facing: Facing): ArrayList<CameraProperty> {
                     DefaultCameraProperty.ZOOM_RATIO,
                     if (it != null) if (it.isNotEmpty()) "×%.2f".format(it.max()!! / 100.0f) else "" else "",
                     it.formatSize("step", "steps"),
+                    false,
                     it?.map { "×%.2f".format(it / 100.0f) }
             )
         }

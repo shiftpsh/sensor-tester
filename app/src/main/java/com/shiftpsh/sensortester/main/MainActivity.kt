@@ -49,9 +49,14 @@ class MainActivity : AppCompatActivity() {
             viewModel.cameraPropertiesFlowable.subscribe {
                 with(ui_camera_preview.camera?.parameters ?: return@subscribe) {
                     when (it.first) {
+                        // TODO add indicators; make preview size changeable
                         DefaultCameraProperty.PREVIEW_FPS -> {
                             val value = it.second.split("..").map { it.makeFloat() }
                             setPreviewFpsRange((value[0] * 1000).toInt(), (value[1] * 1000).toInt())
+                        }
+                        DefaultCameraProperty.SIZES_PREVIEW -> {
+                            val value = it.second.split("×").map { it.makeFloat().roundToInt() }
+                            ui_camera_preview.setPreviewSize(value[0], value[1])
                         }
                         DefaultCameraProperty.SCENE_MODES -> {
                             sceneMode = it.second

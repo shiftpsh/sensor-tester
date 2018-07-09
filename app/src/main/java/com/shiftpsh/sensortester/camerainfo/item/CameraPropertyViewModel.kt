@@ -24,10 +24,14 @@ class CameraPropertyViewModel : BaseItemViewModel<CameraProperty>() {
         property.get()?.click(view.context, this)
     }
 
-    fun onCameraPropertiesChange(value: String) {
+    fun onCameraPropertiesChange(newValue: String) {
         val dcp = property.get()?.property ?: return
-        Timber.d("$dcp changed to $value")
-        cameraPropertiesProcessor.onNext(dcp to value)
+        val newProperty = property.get()
+        newProperty?.value = newValue
+        newProperty?.modified = true
+        property.set(newProperty)
+        Timber.d("$dcp changed to $newValue")
+        cameraPropertiesProcessor.onNext(dcp to newValue)
     }
 
 }

@@ -52,6 +52,20 @@ class CameraView(context: Context, attrs: AttributeSet) : SurfaceView(context, a
         camera = null
     }
 
+    fun setPreviewSize(w: Int, h: Int) = executor.execute {
+        try {
+            camera?.stopPreview()
+            camera?.parameters?.apply {
+                setPreviewSize(w, h)
+                camera?.parameters = this
+            }
+            camera?.startPreview()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            camera?.startPreview()
+        }
+    }
+
     private fun initialize(): Boolean {
         with(camera ?: return false) {
             val parameters = parameters
