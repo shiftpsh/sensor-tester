@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
                 viewModel.onCameraAvailiabilityChanged(false)
                 ui_camera_preview.stop()
                 ui_camera_preview.start(facing) {
-                    ui_properties.swapAdapter(
+                    ui_properties.adapter =
                             object : BaseRecyclerViewAdapter<CameraProperty, CameraPropertyViewModel>() {
                                 override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder<CameraProperty, CameraPropertyViewModel> {
                                     val itemView = LayoutInflater.from(this@MainActivity)
@@ -80,7 +80,6 @@ class MainActivity : AppCompatActivity() {
                             }.apply {
                                 items = it.getProperties(facing)
                             }
-                            , true)
 
                     viewModel.onCameraAvailiabilityChanged(true)
                 }
