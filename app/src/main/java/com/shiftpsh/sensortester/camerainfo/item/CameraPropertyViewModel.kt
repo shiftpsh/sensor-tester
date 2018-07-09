@@ -30,7 +30,7 @@ class CameraPropertyViewModel : BaseItemViewModel<CameraProperty>() {
         newProperty?.value = newValue
         newProperty?.modified = true
         property.set(newProperty)
-        Timber.d("$dcp changed to $newValue")
+        Timber.d("$dcp changed to ${property.get()?.value}")
         cameraPropertiesProcessor.onNext(dcp to newValue)
     }
 

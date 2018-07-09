@@ -81,6 +81,7 @@ class MainActivity : AppCompatActivity() {
 
                     setParameters(this)
                 }
+                notifyDataSetChanged()
             }
 
             return ItemViewHolder(itemView, binding, viewModel)
