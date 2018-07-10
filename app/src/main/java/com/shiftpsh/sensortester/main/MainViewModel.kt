@@ -1,14 +1,9 @@
 package com.shiftpsh.sensortester.main
 
-import android.databinding.BindingAdapter
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
 import android.databinding.ObservableInt
-import android.support.constraint.ConstraintLayout
-import android.support.constraint.ConstraintSet
-import android.support.constraint.Guideline
 import android.support.design.widget.BottomNavigationView
-import android.view.View
 import com.shiftpsh.sensortester.BaseViewModel
 import com.shiftpsh.sensortester.R
 import com.shiftpsh.sensortester.camerainfo.Facing

@@ -2,7 +2,6 @@ package com.shiftpsh.sensortester.camerainfo.item
 
 import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.hardware.Camera
 import android.widget.ArrayAdapter
 import com.shiftpsh.sensortester.R
@@ -54,7 +53,6 @@ fun Camera.getProperties(facing: Facing): ArrayList<CameraProperty> {
     val parameters = parameters!!
     val temp = ArrayList<CameraProperty>()
 
-    // TODO click to reveal advanced information
     with(parameters) {
         temp += CameraProperty(
                 DefaultCameraProperty.ROTATION,

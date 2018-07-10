@@ -49,7 +49,6 @@ class MainActivity : AppCompatActivity() {
             viewModel.cameraPropertiesFlowable.subscribe {
                 with(ui_camera_preview.camera?.parameters ?: return@subscribe) {
                     when (it.first) {
-                        // TODO add indicators; make preview size changeable
                         DefaultCameraProperty.PREVIEW_FPS -> {
                             val value = it.second.split("..").map { it.makeFloat() }
                             setPreviewFpsRange((value[0] * 1000).toInt(), (value[1] * 1000).toInt())
@@ -83,6 +82,54 @@ class MainActivity : AppCompatActivity() {
                     setParameters(this)
                 }
                 notifyDataSetChanged()
+            }
+
+            return ItemViewHolder(itemView, binding, viewModel)
+        }
+    }
+
+    fun sensorAdapter(sensorManager: SensorManager) = object : BaseRecyclerViewAdapter<SensorProperty, SensorPropertyViewModel>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder<SensorProperty, SensorPropertyViewModel> {
+            val itemView = LayoutInflater.from(this@MainActivity)
+                    .inflate(R.layout.item_sensor_properties, parent, false)
+
+            val viewModel = SensorPropertyViewModel()
+            val binding = ItemSensorPropertiesBinding.bind(itemView)
+            binding.vm = viewModel
+
+            with(viewModel.property) {
+                val x = object : Observable.OnPropertyChangedCallback() {
+                    override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                        val apiVersion = Build.VERSION.SDK_INT
+                        val property = get()!!
+                        if (get()?.type != SensorType.NULL) {
+                            removeOnPropertyChangedCallback(this)
+
+                            if (property.type.apiLevel <= apiVersion) {
+                                val sensor = sensorManager.getDefaultSensor(property.type.id)
+                                if (sensor == null) {
+                                    set(SensorProperty(property.type, "unsupported", false))
+                                } else {
+                                    val listener = object : SensorEventListener {
+                                        override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
+                                        }
+
+                                        override fun onSensorChanged(p0: SensorEvent?) {
+                                            p0 ?: return
+                                            set(SensorProperty(property.type, SensorFormat.format(p0, property.type.type, property.type.unit), true))
+                                        }
+                                    }
+
+                                    sensorListeners += property.type to listener
+                                    sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+                                }
+                            } else {
+                                set(SensorProperty(property.type, "API ${property.type.apiLevel} needed", false))
+                            }
+                        }
+                    }
+                }
+                addOnPropertyChangedCallback(x)
             }
 
             return ItemViewHolder(itemView, binding, viewModel)
@@ -133,54 +180,7 @@ class MainActivity : AppCompatActivity() {
             } else {
                 val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
-                object : BaseRecyclerViewAdapter<SensorProperty, SensorPropertyViewModel>() {
-                    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder<SensorProperty, SensorPropertyViewModel> {
-                        val itemView = LayoutInflater.from(this@MainActivity)
-                                .inflate(R.layout.item_sensor_properties, parent, false)
-
-                        val viewModel = SensorPropertyViewModel()
-                        val binding = ItemSensorPropertiesBinding.bind(itemView)
-                        binding.vm = viewModel
-
-                        // TODO cleanup dirty code
-                        with(viewModel.property) {
-                            val x = object : Observable.OnPropertyChangedCallback() {
-                                override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                                    val apiVersion = Build.VERSION.SDK_INT
-                                    val property = get()!!
-                                    if (get()?.type != SensorType.NULL) {
-                                        removeOnPropertyChangedCallback(this)
-
-                                        if (property.type.apiLevel <= apiVersion) {
-                                            val sensor = sensorManager.getDefaultSensor(property.type.id)
-                                            if (sensor == null) {
-                                                set(SensorProperty(property.type, "unsupported", false))
-                                            } else {
-                                                val listener = object : SensorEventListener {
-                                                    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
-                                                    }
-
-                                                    override fun onSensorChanged(p0: SensorEvent?) {
-                                                        p0 ?: return
-                                                        set(SensorProperty(property.type, SensorFormat.format(p0, property.type.type, property.type.unit), true))
-                                                    }
-                                                }
-
-                                                sensorListeners += property.type to listener
-                                                sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL)
-                                            }
-                                        } else {
-                                            set(SensorProperty(property.type, "API ${property.type.apiLevel} needed", false))
-                                        }
-                                    }
-                                }
-                            }
-                            addOnPropertyChangedCallback(x)
-                        }
-
-                        return ItemViewHolder(itemView, binding, viewModel)
-                    }
-                }.let {
+                sensorAdapter(sensorManager).let {
                     it.items = getSensorProperties()
                     ui_properties.adapter = it
                 }

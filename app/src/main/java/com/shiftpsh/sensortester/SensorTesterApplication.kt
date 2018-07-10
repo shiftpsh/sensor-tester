@@ -18,7 +18,6 @@ class SensorTesterApplication : Application() {
         }
     }
 
-    // TODO implement crash reporting
     private class CrashReportingTree : Timber.Tree() {
         override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
         }
