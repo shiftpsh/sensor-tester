@@ -2,18 +2,20 @@ package com.shiftpsh.sensortester.camera
 
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.SurfaceTexture
 import android.hardware.Camera
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.view.TextureView
 import com.shiftpsh.sensortester.camerainfo.Facing
 import timber.log.Timber
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class CameraView(context: Context, attrs: AttributeSet) : SurfaceView(context, attrs), SurfaceHolder.Callback {
+class CameraView(context: Context, attrs: AttributeSet) : TextureView(context, attrs), TextureView.SurfaceTextureListener {
 
     var camera: Camera? = null
     var facing: Facing = Facing.REAR
@@ -22,7 +24,7 @@ class CameraView(context: Context, attrs: AttributeSet) : SurfaceView(context, a
     private val executor: ExecutorService by lazy { Executors.newSingleThreadExecutor() }
 
     init {
-        holder.addCallback(this)
+        surfaceTextureListener = this
     }
 
     fun start(facing: Facing, success: (Camera) -> Unit, callback: () -> Unit) = executor.execute {
@@ -81,7 +83,7 @@ class CameraView(context: Context, attrs: AttributeSet) : SurfaceView(context, a
             }
 
             this.parameters = parameters
-            setPreviewDisplay(holder)
+            setPreviewTexture(surfaceTexture)
             startPreview()
 
             Timber.d("CameraView($facing) init")
@@ -90,15 +92,20 @@ class CameraView(context: Context, attrs: AttributeSet) : SurfaceView(context, a
         return true
     }
 
-    override fun surfaceCreated(p0: SurfaceHolder?) {
-        Timber.d("CameraView($facing) surfaceCreated")
+    override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture?, p1: Int, p2: Int) = executor.execute {
     }
 
-    override fun surfaceChanged(p0: SurfaceHolder?, p1: Int, p2: Int, p3: Int) {
+    override fun onSurfaceTextureUpdated(p0: SurfaceTexture?) {
     }
 
-    override fun surfaceDestroyed(p0: SurfaceHolder?) = executor.execute {
+    override fun onSurfaceTextureDestroyed(p0: SurfaceTexture?): Boolean {
         Timber.d("CameraView($facing) surfaceDestroyed")
         stop()
+
+        return true
     }
+
+    override fun onSurfaceTextureAvailable(p0: SurfaceTexture?, p1: Int, p2: Int) {
+    }
+
 }

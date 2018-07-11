@@ -41,7 +41,6 @@ class SensorInfoFragment : Fragment() {
                 val binding = ItemSensorPropertiesBinding.bind(itemView)
                 binding.vm = viewModel
 
-                // TODO cleanup dirty code
                 with(viewModel.property) {
                     val x = object : Observable.OnPropertyChangedCallback() {
                         override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
@@ -85,7 +84,6 @@ class SensorInfoFragment : Fragment() {
         }
     }
 
-    // FIXME onPause() / onResume() takes so long: lags when orientation changes
     override fun onPause() {
         super.onPause()
 
