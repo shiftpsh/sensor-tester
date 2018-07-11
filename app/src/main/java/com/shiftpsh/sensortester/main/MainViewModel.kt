@@ -21,7 +21,7 @@ class MainViewModel : BaseViewModel() {
     val currentMenuItem = ObservableInt(R.id.item_camera_rear)
     val cameraAvailable = ObservableBoolean(false)
     val waitingCamera = ObservableBoolean(true)
-    val aspectRatio = ObservableField<String>("16:9")
+    val aspectRatio = ObservableField<String>("9:16")
     val cameraFacing = ObservableField<Facing>(Facing.FRONT)
 
     private val cameraAvailableProcessor: PublishProcessor<Boolean> = PublishProcessor.create()

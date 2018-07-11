@@ -93,10 +93,6 @@ class CameraView(context: Context, attrs: AttributeSet) : TextureView(context, a
     }
 
     override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture?, p1: Int, p2: Int) = executor.execute {
-        surface ?: return@execute
-
-        stop()
-        start(facing, {}, {})
     }
 
     override fun onSurfaceTextureUpdated(p0: SurfaceTexture?) {
