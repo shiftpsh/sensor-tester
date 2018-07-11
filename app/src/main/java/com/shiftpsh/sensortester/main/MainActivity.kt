@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
                         }
                         DefaultCameraProperty.SIZES_PREVIEW -> {
                             val value = it.second.split("×").map { it.makeFloat().roundToInt() }
-                            this@MainActivity.viewModel.aspectRatio.set("${value[0]}:${value[1]}")
+                            this@MainActivity.viewModel.aspectRatio.set("${value[1]}:${value[0]}")
                             ui_camera_preview.setPreviewSize(value[0], value[1])
                         }
                         DefaultCameraProperty.SCENE_MODES -> {
