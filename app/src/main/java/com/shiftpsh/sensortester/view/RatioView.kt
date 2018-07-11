@@ -1,6 +1,7 @@
 package com.shiftpsh.sensortester.view
 
 import android.content.Context
+import android.content.res.Configuration
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import timber.log.Timber
@@ -13,7 +14,11 @@ class RatioView(context: Context, attributeSet: AttributeSet) : FrameLayout(cont
         }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val calculatedRatio = ratio.split(":").map { it.toDouble() }.let { it[1] / it[0] }
+        val orientation = context.resources.configuration.orientation
+
+        val calculatedRatio = ratio.split(":").map { it.toDouble() }.let {
+            if (orientation == Configuration.ORIENTATION_PORTRAIT) it[1] / it[0] else it[0] / it[1]
+        }
         Timber.d("ratio: $calculatedRatio")
         // setMeasuredDimension((measuredHeight * calculatedRatio).toInt(), measuredHeight)
         super.onMeasure(
