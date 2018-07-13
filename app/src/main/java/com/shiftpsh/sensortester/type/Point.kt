@@ -1,7 +1,17 @@
 package com.shiftpsh.sensortester.type
 
-class Point(var x: Float, var y: Float) {
+class Point(x: Float, y: Float) {
 
+    internal var x: Float
+        private set
+    internal var y: Float
+        private set
+
+    init {
+        this.x = x
+        this.y = y
+    }
+    
     constructor(x: Number, y: Number) : this(x.toFloat(), y.toFloat())
 
     operator fun plus(other: Point) = Point(x + other.x, y + other.y)
