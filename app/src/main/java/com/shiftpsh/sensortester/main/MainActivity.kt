@@ -215,7 +215,7 @@ class MainActivity : AppCompatActivity() {
                     return@capturePicture
                 }
 
-                val dateFormat = SimpleDateFormat("yyyymmdd_hhmmss")
+                val dateFormat = SimpleDateFormat("yyyymmdd_hhmmss", Locale.US)
                 val date = dateFormat.format(Date())
                 val photoFile = "Picture_$date.jpg"
 
