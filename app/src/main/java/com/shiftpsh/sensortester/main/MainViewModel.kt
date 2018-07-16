@@ -1,9 +1,12 @@
 package com.shiftpsh.sensortester.main
 
+import android.databinding.BindingAdapter
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
 import android.databinding.ObservableInt
 import android.support.design.widget.BottomNavigationView
+import android.support.design.widget.FloatingActionButton
+import android.view.View
 import com.shiftpsh.sensortester.BaseViewModel
 import com.shiftpsh.sensortester.R
 import com.shiftpsh.sensortester.camerainfo.Facing
@@ -29,6 +32,9 @@ class MainViewModel : BaseViewModel() {
 
     private val stateProcessor: PublishProcessor<Pair<Boolean, Facing>> = PublishProcessor.create()
     internal val stateFlowable: Flowable<Pair<Boolean, Facing>> = stateProcessor
+
+    private val captureProcessor: PublishProcessor<Boolean> = PublishProcessor.create()
+    internal val captureFlowable: Flowable<Boolean> = captureProcessor
 
     private var lastPage = -1
 
@@ -91,6 +97,10 @@ class MainViewModel : BaseViewModel() {
         }
     }
 
+    fun onCapture(v: View) {
+        captureProcessor.onNext(true)
+    }
+
     val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         val index = menu.indexOf(item.itemId)
         onCurrentPageChanged(index)
@@ -100,4 +110,15 @@ class MainViewModel : BaseViewModel() {
 
 enum class Page {
     CAMERA_REAR, CAMERA_FRONT, SENSOR
+}
+
+@BindingAdapter("bind:fabVisibility")
+fun bindFabVisibility(view: FloatingActionButton, vm: MainViewModel) {
+    vm.stateFlowable.subscribe { (isCameraAvailable, facing) ->
+        if (isCameraAvailable) {
+            view.show()
+        } else {
+            view.hide()
+        }
+    }
 }

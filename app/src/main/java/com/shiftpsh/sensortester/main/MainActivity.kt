@@ -1,6 +1,7 @@
 package com.shiftpsh.sensortester.main
 
 import android.Manifest
+import android.content.ContentValues
 import android.content.Context
 import android.databinding.DataBindingUtil
 import android.databinding.Observable
@@ -10,6 +11,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -22,12 +24,19 @@ import com.shiftpsh.sensortester.camerainfo.item.getProperties
 import com.shiftpsh.sensortester.databinding.ActivityMainBinding
 import com.shiftpsh.sensortester.databinding.ItemCameraPropertiesBinding
 import com.shiftpsh.sensortester.databinding.ItemSensorPropertiesBinding
+import com.shiftpsh.sensortester.extension.PICTURES_DIRECTORY
 import com.shiftpsh.sensortester.extension.makeFloat
-import com.shiftpsh.sensortester.extension.requestPermission
+import com.shiftpsh.sensortester.extension.requestPermissions
+import com.shiftpsh.sensortester.extension.toast
 import com.shiftpsh.sensortester.sensorinfo.item.*
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
+import java.io.File
+import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.math.roundToInt
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -57,6 +66,10 @@ class MainActivity : AppCompatActivity() {
                             val value = it.second.split("×").map { it.makeFloat().roundToInt() }
                             this@MainActivity.viewModel.aspectRatio.set("${value[0]}:${value[1]}")
                             ui_camera_preview.setPreviewSize(value[0], value[1])
+                        }
+                        DefaultCameraProperty.SIZES_PICTURE -> {
+                            val value = it.second.split("×").map { it.makeFloat().roundToInt() }
+                            ui_camera_preview.setPictureSize(value[0], value[1])
                         }
                         DefaultCameraProperty.SCENE_MODES -> {
                             sceneMode = it.second
@@ -152,7 +165,10 @@ class MainActivity : AppCompatActivity() {
         lastPage = initialIndex
 
         setSupportActionBar(ui_toolbar)
-        requestPermission(Manifest.permission.CAMERA) { initialize(initialIndex) }
+        requestPermissions(listOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        ) { initialize(initialIndex) }
         lifecycle.addObserver(viewModel)
     }
 
@@ -187,6 +203,57 @@ class MainActivity : AppCompatActivity() {
                     it.items = getSensorProperties()
                     ui_properties.adapter = it
                 }
+            }
+        }
+
+        viewModel.captureFlowable.subscribe {
+            ui_camera_preview.capturePicture { data ->
+                if (!PICTURES_DIRECTORY.exists() && !PICTURES_DIRECTORY.mkdirs()) {
+                    toast("Capture failed!")
+
+                    return@capturePicture
+                }
+
+                val dateFormat = SimpleDateFormat("yyyymmdd_hhmmss", Locale.US)
+                val date = dateFormat.format(Date())
+                val photoFile = "Picture_$date.jpg"
+
+                val filename = PICTURES_DIRECTORY.path + File.separator + photoFile
+
+                var index = 0
+                var pictureFile = File(filename)
+
+                while (pictureFile.exists()) {
+                    pictureFile = File("${photoFile}_$index")
+                    index++
+                }
+
+                try {
+                    val fos = FileOutputStream(pictureFile)
+                    fos.write(data)
+                    fos.close()
+
+                    val image = ContentValues()
+                    image.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+
+                    val path = pictureFile.parentFile.toString().toLowerCase()
+                    val name = pictureFile.parentFile.name.toLowerCase()
+
+                    image.put(MediaStore.Images.ImageColumns.BUCKET_ID, path.hashCode())
+                    image.put(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME, name)
+                    image.put(MediaStore.Images.Media.SIZE, pictureFile.length())
+
+                    image.put(MediaStore.Images.Media.DATA, pictureFile.absolutePath)
+
+                    val result = baseContext.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, image)
+
+                    toast("Image saved: $photoFile")
+                } catch (e: Exception) {
+                    e.printStackTrace()
+
+                    toast("Capture failed!")
+                }
+
             }
         }
 
