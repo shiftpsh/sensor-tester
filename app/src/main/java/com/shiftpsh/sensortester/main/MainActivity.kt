@@ -1,6 +1,7 @@
 package com.shiftpsh.sensortester.main
 
 import android.Manifest
+import android.content.ContentValues
 import android.content.Context
 import android.databinding.DataBindingUtil
 import android.databinding.Observable
@@ -10,10 +11,10 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
 import com.shiftpsh.sensortester.BaseRecyclerViewAdapter
 import com.shiftpsh.sensortester.R
 import com.shiftpsh.sensortester.camerainfo.item.CameraProperty
@@ -26,19 +27,15 @@ import com.shiftpsh.sensortester.databinding.ItemSensorPropertiesBinding
 import com.shiftpsh.sensortester.extension.PICTURES_DIRECTORY
 import com.shiftpsh.sensortester.extension.makeFloat
 import com.shiftpsh.sensortester.extension.requestPermissions
+import com.shiftpsh.sensortester.extension.toast
 import com.shiftpsh.sensortester.sensorinfo.item.*
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
-import kotlin.math.roundToInt
-import android.R.attr.data
-import android.content.ContentValues
-import android.provider.MediaStore
-import com.shiftpsh.sensortester.extension.toast
 import java.io.File
-import java.io.File.separator
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.roundToInt
 
 
 class MainActivity : AppCompatActivity() {

@@ -8,9 +8,11 @@ import android.hardware.Camera
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
-import android.view.*
+import android.view.MotionEvent
+import android.view.TextureView
 import com.shiftpsh.sensortester.camerainfo.Facing
-import com.shiftpsh.sensortester.type.*
+import com.shiftpsh.sensortester.type.Point
+import com.shiftpsh.sensortester.type.times
 import timber.log.Timber
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors

@@ -40,6 +40,7 @@ fun Activity.requestPermissions(permissions: List<String>, body: () -> Unit) {
                         finish()
                     }
                 }
+
                 override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
                 }
             }).check()
