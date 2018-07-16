@@ -92,7 +92,12 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
 
-                    setParameters(this)
+                    try {
+                        setParameters(this)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        toast("Parameter change failed!")
+                    }
                 }
                 notifyDataSetChanged()
             }
