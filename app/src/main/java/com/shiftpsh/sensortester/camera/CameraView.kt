@@ -68,6 +68,27 @@ class CameraView(context: Context, attrs: AttributeSet) : TextureView(context, a
         }
     }
 
+    fun setPictureSize(w: Int, h: Int) = executor.execute {
+        try {
+            camera?.stopPreview()
+            camera?.parameters?.apply {
+                setPictureSize(w, h)
+                camera?.parameters = this
+            }
+            camera?.startPreview()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            camera?.startPreview()
+        }
+    }
+
+    fun capturePicture(after: (ByteArray) -> Unit) = executor.execute {
+        camera?.takePicture({}, { _, _ -> }) { byteArray, _ ->
+            after(byteArray)
+            camera?.startPreview()
+        }
+    }
+
     private fun initialize(): Boolean {
         with(camera ?: return false) {
             val parameters = parameters

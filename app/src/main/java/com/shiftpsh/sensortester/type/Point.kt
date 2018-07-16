@@ -11,7 +11,7 @@ class Point(x: Float, y: Float) {
         this.x = x
         this.y = y
     }
-    
+
     constructor(x: Number, y: Number) : this(x.toFloat(), y.toFloat())
 
     operator fun plus(other: Point) = Point(x + other.x, y + other.y)

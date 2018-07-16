@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
 import com.shiftpsh.sensortester.BaseRecyclerViewAdapter
 import com.shiftpsh.sensortester.R
 import com.shiftpsh.sensortester.camerainfo.item.CameraProperty
@@ -22,12 +23,21 @@ import com.shiftpsh.sensortester.camerainfo.item.getProperties
 import com.shiftpsh.sensortester.databinding.ActivityMainBinding
 import com.shiftpsh.sensortester.databinding.ItemCameraPropertiesBinding
 import com.shiftpsh.sensortester.databinding.ItemSensorPropertiesBinding
+import com.shiftpsh.sensortester.extension.PICTURES_DIRECTORY
 import com.shiftpsh.sensortester.extension.makeFloat
-import com.shiftpsh.sensortester.extension.requestPermission
+import com.shiftpsh.sensortester.extension.requestPermissions
 import com.shiftpsh.sensortester.sensorinfo.item.*
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 import kotlin.math.roundToInt
+import android.R.attr.data
+import com.shiftpsh.sensortester.extension.toast
+import java.io.File
+import java.io.File.separator
+import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -57,6 +67,10 @@ class MainActivity : AppCompatActivity() {
                             val value = it.second.split("×").map { it.makeFloat().roundToInt() }
                             this@MainActivity.viewModel.aspectRatio.set("${value[0]}:${value[1]}")
                             ui_camera_preview.setPreviewSize(value[0], value[1])
+                        }
+                        DefaultCameraProperty.SIZES_PICTURE -> {
+                            val value = it.second.split("×").map { it.makeFloat().roundToInt() }
+                            ui_camera_preview.setPictureSize(value[0], value[1])
                         }
                         DefaultCameraProperty.SCENE_MODES -> {
                             sceneMode = it.second
@@ -152,7 +166,10 @@ class MainActivity : AppCompatActivity() {
         lastPage = initialIndex
 
         setSupportActionBar(ui_toolbar)
-        requestPermission(Manifest.permission.CAMERA) { initialize(initialIndex) }
+        requestPermissions(listOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        ) { initialize(initialIndex) }
         lifecycle.addObserver(viewModel)
     }
 
@@ -187,6 +204,43 @@ class MainActivity : AppCompatActivity() {
                     it.items = getSensorProperties()
                     ui_properties.adapter = it
                 }
+            }
+        }
+
+        viewModel.captureFlowable.subscribe {
+            ui_camera_preview.capturePicture { data ->
+                if (!PICTURES_DIRECTORY.exists() && !PICTURES_DIRECTORY.mkdirs()) {
+                    toast("Capture failed!")
+
+                    return@capturePicture
+                }
+
+                val dateFormat = SimpleDateFormat("yyyymmdd_hhmmss")
+                val date = dateFormat.format(Date())
+                val photoFile = "Picture_$date.jpg"
+
+                val filename = PICTURES_DIRECTORY.path + File.separator + photoFile
+
+                var index = 0
+                var pictureFile = File(filename)
+
+                while (pictureFile.exists()) {
+                    pictureFile = File("${photoFile}_$index")
+                    index++
+                }
+
+                try {
+                    val fos = FileOutputStream(pictureFile)
+                    fos.write(data)
+                    fos.close()
+
+                    toast("Image saved: $photoFile")
+                } catch (e: Exception) {
+                    e.printStackTrace()
+
+                    toast("Capture failed!")
+                }
+
             }
         }
 
