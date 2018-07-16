@@ -31,6 +31,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 import kotlin.math.roundToInt
 import android.R.attr.data
+import android.content.ContentValues
+import android.provider.MediaStore
 import com.shiftpsh.sensortester.extension.toast
 import java.io.File
 import java.io.File.separator
@@ -233,6 +235,20 @@ class MainActivity : AppCompatActivity() {
                     val fos = FileOutputStream(pictureFile)
                     fos.write(data)
                     fos.close()
+
+                    val image = ContentValues()
+                    image.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+
+                    val path = pictureFile.parentFile.toString().toLowerCase()
+                    val name = pictureFile.parentFile.name.toLowerCase()
+
+                    image.put(MediaStore.Images.ImageColumns.BUCKET_ID, path.hashCode())
+                    image.put(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME, name)
+                    image.put(MediaStore.Images.Media.SIZE, pictureFile.length())
+
+                    image.put(MediaStore.Images.Media.DATA, pictureFile.absolutePath)
+
+                    val result = baseContext.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, image)
 
                     toast("Image saved: $photoFile")
                 } catch (e: Exception) {
