@@ -83,9 +83,13 @@ class CameraView(context: Context, attrs: AttributeSet) : TextureView(context, a
     }
 
     fun capturePicture(after: (ByteArray) -> Unit) = executor.execute {
-        camera?.takePicture({}, { _, _ -> }) { byteArray, _ ->
-            after(byteArray)
-            camera?.startPreview()
+        try {
+            camera?.takePicture({}, { _, _ -> }) { byteArray, _ ->
+                after(byteArray)
+                camera?.startPreview()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
