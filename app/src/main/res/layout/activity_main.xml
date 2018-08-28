@@ -44,7 +44,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:background="@android:color/black"
-                android:visibility="@{vm.isCurrentTypeCamera ? View.VISIBLE : View.GONE}"
                 app:layout_constraintDimensionRatio="16:9">
 
                 <com.shiftpsh.sensortester.view.RatioView
@@ -62,7 +61,6 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:layout_gravity="center"
-                        android:visibility="@{vm.cameraAvailable || vm.waitingCamera ? View.INVISIBLE : View.VISIBLE}"
                         app:srcCompat="@drawable/ic_unsupported_black_24dp"
                         app:tint="@android:color/darker_gray" />
                 </com.shiftpsh.sensortester.view.RatioView>
@@ -75,7 +73,6 @@
                 android:background="@color/colorPrimary"
                 android:orientation="horizontal"
                 android:padding="8dp"
-                android:visibility="@{vm.isCurrentTypeCamera ? View.VISIBLE : View.GONE}"
                 app:layout_constraintTop_toBottomOf="@+id/ui_camera_preview_container">
 
                 <android.support.v7.widget.AppCompatImageView
@@ -130,7 +127,7 @@
                     android:alpha="0.5"
                     android:gravity="center_horizontal"
                     android:orientation="vertical"
-                    android:visibility="@{vm.cameraAvailable || !vm.isCurrentTypeCamera || vm.waitingCamera ? View.GONE : View.VISIBLE}">
+                    android:visibility="@{vm.cameraAvailable || vm.waitingCamera ? View.GONE : View.VISIBLE}">
 
                     <android.support.v7.widget.AppCompatImageView
                         android:layout_width="64dp"
@@ -156,7 +153,6 @@
                         android:clipToPadding="false"
                         android:orientation="vertical"
                         android:padding="16dp"
-                        android:visibility="@{vm.cameraAvailable || !vm.isCurrentTypeCamera ? View.VISIBLE : View.INVISIBLE}"
                         app:layoutManager="android.support.v7.widget.GridLayoutManager"
                         app:spanCount="2">
 
@@ -173,8 +169,7 @@
             android:src="@drawable/ic_photo_camera_black_24dp"
             android:onClick="@{vm::onCapture}"
             app:elevation="6dp"
-            app:tint="@android:color/white"
-            bind:fabVisibility="@{vm}" />
+            app:tint="@android:color/white" />
 
         <android.support.design.widget.BottomNavigationView
             android:id="@+id/ui_bottom_navigation"

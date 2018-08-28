@@ -180,8 +180,7 @@
             android:src="@drawable/ic_photo_camera_black_24dp"
             android:onClick="@{vm::onCapture}"
             app:elevation="6dp"
-            app:tint="@android:color/white"
-            bind:fabVisibility="@{vm}" />
+            app:tint="@android:color/white" />
 
         <android.support.design.widget.BottomNavigationView
             android:id="@+id/ui_bottom_navigation"

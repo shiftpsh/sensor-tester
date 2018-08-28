@@ -2,14 +2,7 @@ package com.shiftpsh.sensortester.main
 
 import android.Manifest
 import android.content.ContentValues
-import android.content.Context
 import android.databinding.DataBindingUtil
-import android.databinding.Observable
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
-import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.support.v7.app.AppCompatActivity
@@ -23,12 +16,10 @@ import com.shiftpsh.sensortester.camerainfo.item.DefaultCameraProperty
 import com.shiftpsh.sensortester.camerainfo.item.getProperties
 import com.shiftpsh.sensortester.databinding.ActivityMainBinding
 import com.shiftpsh.sensortester.databinding.ItemCameraPropertiesBinding
-import com.shiftpsh.sensortester.databinding.ItemSensorPropertiesBinding
 import com.shiftpsh.sensortester.extension.PICTURES_DIRECTORY
 import com.shiftpsh.sensortester.extension.makeFloat
 import com.shiftpsh.sensortester.extension.requestPermissions
 import com.shiftpsh.sensortester.extension.toast
-import com.shiftpsh.sensortester.sensorinfo.item.*
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 import java.io.File
@@ -43,8 +34,6 @@ class MainActivity : AppCompatActivity() {
     lateinit var viewModel: MainViewModel
     var lastPage = 0
 
-    val sensorListeners: ArrayList<Pair<SensorType, SensorEventListener>> = arrayListOf()
-
     val cameraAdapter = object : BaseRecyclerViewAdapter<CameraProperty, CameraPropertyViewModel>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder<CameraProperty, CameraPropertyViewModel> {
             val itemView = LayoutInflater.from(this@MainActivity)
@@ -54,9 +43,9 @@ class MainActivity : AppCompatActivity() {
 
             val binding = ItemCameraPropertiesBinding.bind(itemView)
             binding.vm = viewModel
-
+/*
             viewModel.cameraPropertiesFlowable.subscribe {
-                with(ui_camera_preview.camera?.parameters ?: return@subscribe) {
+                with(ui_camera_preview.cameraDevice?.parameters ?: return@subscribe) {
                     when (it.first) {
                         DefaultCameraProperty.PREVIEW_FPS -> {
                             val value = it.second.split("..").map { it.makeFloat() }
@@ -96,61 +85,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 notifyDataSetChanged()
             }
-
+*/
             return ItemViewHolder(itemView, binding, viewModel)
         }
-    }
-
-    fun sensorAdapter(sensorManager: SensorManager) = object : BaseRecyclerViewAdapter<SensorProperty, SensorPropertyViewModel>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder<SensorProperty, SensorPropertyViewModel> {
-            val itemView = LayoutInflater.from(this@MainActivity)
-                    .inflate(R.layout.item_sensor_properties, parent, false)
-
-            val viewModel = SensorPropertyViewModel()
-            val binding = ItemSensorPropertiesBinding.bind(itemView)
-            binding.vm = viewModel
-
-            with(viewModel.property) {
-                val x = object : Observable.OnPropertyChangedCallback() {
-                    override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                        val apiVersion = Build.VERSION.SDK_INT
-                        val property = get()!!
-                        if (get()?.type != SensorType.NULL) {
-                            removeOnPropertyChangedCallback(this)
-
-                            if (property.type.apiLevel <= apiVersion) {
-                                val sensor = sensorManager.getDefaultSensor(property.type.id)
-                                if (sensor == null) {
-                                    set(SensorProperty(property.type, "unsupported", false))
-                                } else {
-                                    val listener = object : SensorEventListener {
-                                        override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
-                                        }
-
-                                        override fun onSensorChanged(p0: SensorEvent?) {
-                                            p0 ?: return
-                                            set(SensorProperty(property.type, SensorFormat.format(p0, property.type.type, property.type.unit), true))
-                                        }
-                                    }
-
-                                    sensorListeners += property.type to listener
-                                    sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL)
-                                }
-                            } else {
-                                set(SensorProperty(property.type, "API ${property.type.apiLevel} needed", false))
-                            }
-                        }
-                    }
-                }
-                addOnPropertyChangedCallback(x)
-            }
-
-            return ItemViewHolder(itemView, binding, viewModel)
-        }
-    }
-
-    fun setParameters(parameters: android.hardware.Camera.Parameters) {
-        ui_camera_preview.camera?.parameters = parameters
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -180,30 +117,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.stateFlowable.subscribe { (isCurrentTypeCamera, facing) ->
-            if (isCurrentTypeCamera) {
-                viewModel.onCameraWaitingStateChanged(true)
-                viewModel.onCameraAvailiabilityChanged(false)
-                ui_camera_preview.stop()
+            viewModel.onCameraWaitingStateChanged(true)
+            viewModel.onCameraAvailiabilityChanged(false)
+            ui_camera_preview.stop()
 
-                ui_camera_preview.start(facing, {
-                    ui_properties.adapter = cameraAdapter.apply {
-                        items = it.getProperties(facing)
-                    }
-                    ui_camera_preview.camera?.parameters?.previewSize?.let {
-                        viewModel.aspectRatio.set("${it.width}:${it.height}")
-                    }
-                    viewModel.onCameraAvailiabilityChanged(true)
-                }, {
-                    viewModel.onCameraWaitingStateChanged(false)
-                })
-            } else {
-                val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-
-                sensorAdapter(sensorManager).let {
-                    it.items = getSensorProperties()
-                    ui_properties.adapter = it
-                }
-            }
+            ui_camera_preview.start("0", {
+                viewModel.onCameraAvailiabilityChanged(true)
+            }, {
+                viewModel.onCameraWaitingStateChanged(false)
+            })
         }
 
         viewModel.captureFlowable.subscribe {

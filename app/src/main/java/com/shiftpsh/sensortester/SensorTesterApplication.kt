@@ -4,6 +4,7 @@ import android.app.Application
 import android.support.annotation.Nullable
 import android.util.Log
 import android.util.Log.INFO
+import com.shiftpsh.sensortester.extension.Camera2Extensions
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 
@@ -16,6 +17,8 @@ class SensorTesterApplication : Application() {
         } else {
             Timber.plant(CrashReportingTree())
         }
+
+        Camera2Extensions.init(this)
     }
 
     private class CrashReportingTree : Timber.Tree() {

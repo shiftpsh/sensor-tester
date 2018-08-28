@@ -1,11 +1,9 @@
 package com.shiftpsh.sensortester.main
 
-import android.databinding.BindingAdapter
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
 import android.databinding.ObservableInt
 import android.support.design.widget.BottomNavigationView
-import android.support.design.widget.FloatingActionButton
 import android.view.View
 import com.shiftpsh.sensortester.BaseViewModel
 import com.shiftpsh.sensortester.R
@@ -88,11 +86,6 @@ class MainViewModel : BaseViewModel() {
 
                     stateProcessor.onNext(true to Facing.FRONT)
                 }
-                2 -> {
-                    isCurrentTypeCamera.set(false)
-
-                    stateProcessor.onNext(false to Facing.REAR)
-                }
             }
         }
     }
@@ -105,20 +98,5 @@ class MainViewModel : BaseViewModel() {
         val index = menu.indexOf(item.itemId)
         onCurrentPageChanged(index)
         true
-    }
-}
-
-enum class Page {
-    CAMERA_REAR, CAMERA_FRONT, SENSOR
-}
-
-@BindingAdapter("bind:fabVisibility")
-fun bindFabVisibility(view: FloatingActionButton, vm: MainViewModel) {
-    vm.stateFlowable.subscribe { (isCameraAvailable, facing) ->
-        if (isCameraAvailable) {
-            view.show()
-        } else {
-            view.hide()
-        }
     }
 }
