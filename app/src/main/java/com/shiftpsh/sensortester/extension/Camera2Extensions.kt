@@ -7,6 +7,7 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Handler
+import com.shiftpsh.sensortester.camerainfo.Facing
 import timber.log.Timber
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
@@ -63,6 +64,23 @@ object Camera2Extensions {
         Timber.d("Rotation : %d", result)
 
         return result
+    }
+
+    fun availableCameraCharacteristics(): List<Pair<String, CameraCharacteristics>> {
+        return cameraManager.cameraIdList.map {
+            it to cameraManager.getCameraCharacteristics(it)
+        }
+    }
+
+    fun availableCameraIdFacings(): List<Pair<String, Facing>> {
+        return availableCameraCharacteristics().map {
+            val facing = when (it.second[CameraCharacteristics.LENS_FACING]) {
+                CameraCharacteristics.LENS_FACING_FRONT -> Facing.FRONT
+                CameraCharacteristics.LENS_FACING_BACK -> Facing.REAR
+                else -> Facing.UNKNOWN
+            }
+            it.first to facing
+        }
     }
 }
 

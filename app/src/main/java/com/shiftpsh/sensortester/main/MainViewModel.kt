@@ -1,13 +1,16 @@
 package com.shiftpsh.sensortester.main
 
+import android.databinding.BindingAdapter
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
 import android.databinding.ObservableInt
 import android.support.design.widget.BottomNavigationView
+import android.view.Menu
 import android.view.View
 import com.shiftpsh.sensortester.BaseViewModel
 import com.shiftpsh.sensortester.R
 import com.shiftpsh.sensortester.camerainfo.Facing
+import com.shiftpsh.sensortester.extension.Camera2Extensions
 import io.reactivex.Flowable
 import io.reactivex.processors.PublishProcessor
 import timber.log.Timber
@@ -36,11 +39,7 @@ class MainViewModel : BaseViewModel() {
 
     private var lastPage = -1
 
-    val menu = arrayOf(
-            R.id.item_camera_rear,
-            R.id.item_camera_front,
-            R.id.item_sensors
-    )
+    val menu = Camera2Extensions.availableCameraIdFacings()
 
     override fun onCreate() {
     }
@@ -69,7 +68,7 @@ class MainViewModel : BaseViewModel() {
             currentPageProcessor.onNext(page)
 
             currentPage.set(page)
-            currentMenuItem.set(menu[page])
+            currentMenuItem.set(menu[page].first.hashCode())
 
             lastPage = page
 
@@ -95,8 +94,21 @@ class MainViewModel : BaseViewModel() {
     }
 
     val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
-        val index = menu.indexOf(item.itemId)
-        onCurrentPageChanged(index)
+        for (m in menu) {
+            if (m.first.hashCode() == item.itemId) {
+                onCurrentPageChanged(menu.indexOf(m))
+                break
+            }
+        }
         true
+    }
+}
+
+@BindingAdapter("app:bindMenu")
+fun bindMenu(view: BottomNavigationView, vm: MainViewModel) {
+    val menus = vm.menu
+
+    for (menu in menus) {
+        view.menu.add(Menu.NONE, menu.first.hashCode(), Menu.NONE, "${menu.second} - ID ${menu.first}").setIcon(menu.second.icon)
     }
 }

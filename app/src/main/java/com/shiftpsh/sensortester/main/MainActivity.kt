@@ -16,10 +16,7 @@ import com.shiftpsh.sensortester.camerainfo.item.DefaultCameraProperty
 import com.shiftpsh.sensortester.camerainfo.item.getProperties
 import com.shiftpsh.sensortester.databinding.ActivityMainBinding
 import com.shiftpsh.sensortester.databinding.ItemCameraPropertiesBinding
-import com.shiftpsh.sensortester.extension.PICTURES_DIRECTORY
-import com.shiftpsh.sensortester.extension.makeFloat
-import com.shiftpsh.sensortester.extension.requestPermissions
-import com.shiftpsh.sensortester.extension.toast
+import com.shiftpsh.sensortester.extension.*
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 import java.io.File
@@ -114,14 +111,12 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.currentPageFlowable.subscribe {
             lastPage = it
-        }
 
-        viewModel.stateFlowable.subscribe { (isCurrentTypeCamera, facing) ->
             viewModel.onCameraWaitingStateChanged(true)
             viewModel.onCameraAvailiabilityChanged(false)
             ui_camera_preview.stop()
 
-            ui_camera_preview.start("0", {
+            ui_camera_preview.start(Camera2Extensions.cameraManager.cameraIdList[it], {
                 viewModel.onCameraAvailiabilityChanged(true)
             }, {
                 viewModel.onCameraWaitingStateChanged(false)
@@ -189,9 +184,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        if (lastPage < 2) {
-            ui_camera_preview.stop()
-        }
+        ui_camera_preview.stop()
     }
 
     override fun onResume() {
